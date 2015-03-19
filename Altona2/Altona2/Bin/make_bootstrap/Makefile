@@ -1,5 +1,5 @@
-root = ~/source/altona2
-dest = /home/chaos/bin
+root = ~/github/fr_public/Altona2
+dest = /home/fred/bin
 cflags = -lrt -DsDEFINE_LINUX -DsDEFINE_SHELL -DsDEFINE_MEMDEBUG -I $(root) -std=c++0x -g
 objdir = Bootstrap
 

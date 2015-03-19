@@ -483,7 +483,7 @@ public:
     void Clear();
     void Set(const char *);
     const char *Get() const;
-    sStringDesc sTextLog::GetStringDesc(uptr size);
+    sStringDesc GetStringDesc(uptr size);
     uptr GetCount() { return Used; }
     void Print(const char *);
     void Add(const char *,uptr len);

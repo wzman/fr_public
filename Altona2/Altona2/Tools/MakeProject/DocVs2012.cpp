@@ -1,4 +1,3 @@
-v
 #include "Altona2/Libs/Base/Base.hpp"
 #include "Doc.hpp"
 

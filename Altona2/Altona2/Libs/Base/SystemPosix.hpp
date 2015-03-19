@@ -52,6 +52,30 @@ protected:
 
 /****************************************************************************/
 
+namespace Private {
+
+struct sWinMessage
+{
+    void *Window;
+    uint Message;
+    uint wparam;
+    sptr lparam;
+};
+
+extern sHook1<const sWinMessage &> sWinMessageHook;
+
+enum sMouseLockId
+{
+    sMLI_None = 0,
+    sMLI_Mouse,
+    sMLI_Wintab,            // Wacom
+};
+
+bool AquireMouseLock(sMouseLockId mouselockid);
+bool TestMouseLock(sMouseLockId mouselockid);
+void ReleaseMouseLock(sMouseLockId mouselockid);
+}
+
 #endif  // sConfigPlatform==sConfigPlatformLinux || sConfigPlatform==sConfigPlatformOSX || sConfigPlatform==sConfigPlatformIOS
 
 }

@@ -1583,8 +1583,8 @@ float sBiquad::Filter(float x)
 
 void sBiquad::LowPass(float freq,float q)
 {
-    double cof = cos(sPiDouble*2*freq);
-    double alpha = sin(sPiDouble*2*freq) / (2*q);
+    double cof = sCos(sPiDouble*2*freq);
+    double alpha = sSin(sPiDouble*2*freq) / (2*q);
 
     double B0 = (1-cof)*0.5;
     double B1 = 1-cof;
@@ -1602,8 +1602,8 @@ void sBiquad::LowPass(float freq,float q)
 
 void sBiquad::HighPass(float freq,float q)
 {
-    double cof = cos(sPiDouble*2*freq);
-    double sof = sin(sPiDouble*2*freq);
+    double cof = sCos(sPiDouble*2*freq);
+    double sof = sSin(sPiDouble*2*freq);
     double alpha = sof / (2*q);
 
     double B0 = (1+cof)*0.5;
@@ -1622,8 +1622,8 @@ void sBiquad::HighPass(float freq,float q)
 
 void sBiquad::BandPass(float freq,float q)
 {
-    double cof = cos(sPiDouble*2*freq);
-    double sof = sin(sPiDouble*2*freq);
+    double cof = sCos(sPiDouble*2*freq);
+    double sof = sSin(sPiDouble*2*freq);
     double alpha = sof / (2*q);
 
     double B0 = sof*0.5;
@@ -1642,8 +1642,8 @@ void sBiquad::BandPass(float freq,float q)
 
 void sBiquad::BandPassConstantPeakGain(float freq,float q)
 {
-    double cof = cos(sPiDouble*2*freq);
-    double sof = sin(sPiDouble*2*freq);
+    double cof = sCos(sPiDouble*2*freq);
+    double sof = sSin(sPiDouble*2*freq);
     double alpha = sof / (2*q);
 
     double B0 = alpha;

@@ -8,7 +8,9 @@
 
 #include "Altona2/Libs/Base/Base.hpp"
 #include "Altona2/Libs/Base/SystemPrivate.hpp"
+#ifndef sConfigRenderNull
 #include "Altona2/Libs/Base/FixedShader.hpp"
+#endif
 
 /****************************************************************************/
 

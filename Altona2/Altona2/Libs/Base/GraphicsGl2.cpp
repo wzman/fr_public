@@ -2630,13 +2630,13 @@ bool sGpuQuery::GetData(sPipelineStats &stat)
 /***                                                                      ***/
 /****************************************************************************/
 
+} // end namespace Altona2
+
 #else
 
 int ALTONA2_LIBS_BASE_GRAPHICS_GL2_CPP_STUB;
 
 #endif // gl2 | gles2
-
-}
 
 //#endif // apple disable
 
