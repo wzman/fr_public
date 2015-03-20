@@ -200,7 +200,7 @@ public:
         if(Last+n>End)
         {
             sPtr count = Last-First;
-            SetCapacity(sMax(count+n,sMax(count*2,64/sizeof(T))));
+            SetCapacity(sMax(count+n, sMax(count*2, (sPtr)(64/sizeof(T))) ));
         }
     }
 };
@@ -250,7 +250,7 @@ public:
     }
 };
 
-template<class T,class D> class sArrayBase : protected D
+/*template<class T,class D> class sArrayBase : protected D
 {
 public:
     // information
@@ -321,7 +321,7 @@ template <class T> class sDynArray : public sArrayBase<T,sArrayContainer<T> >
 
 template <class T,int n> class sStackArray : public sArrayBase<T,sStackContainer<T,n> >
 {
-};
+};*/
 
 
 /****************************************************************************/

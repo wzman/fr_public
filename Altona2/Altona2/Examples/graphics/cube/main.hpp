@@ -11,7 +11,7 @@
 
 #include "Altona2/Libs/Base/Base.hpp"
 #include "Altona2/Libs/Util/DebugPainter.hpp"
-#include "Shader.hpp"
+#include "shader.hpp"
 
 using namespace Altona2;
 
