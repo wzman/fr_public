@@ -18,6 +18,7 @@
 void Altona2::Main()
 {
   sInt flags = 0;
+    flags |= sSM_NoVSync;
 //  flags |= sSM_Fullscreen;
   sRunApp(new App,sScreenMode(flags,"cube",1280,720));
 }

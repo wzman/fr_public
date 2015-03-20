@@ -537,6 +537,10 @@ void Private::InitGL()
     DefaultContext->Adapter = DefaultAdapter;
     DefaultAdapter->Init();
 
+    // set vsync on or off
+    GLXDrawable drawable = glXGetCurrentDrawable();
+    glXSwapIntervalEXT(dpy, drawable, (CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+
     InitGLCommon();
 }
 
