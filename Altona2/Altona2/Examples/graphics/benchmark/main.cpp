@@ -8,7 +8,7 @@
 
 #include "main.hpp"
 #include "shader.hpp"
-#include "altona2/libs/util/graphicshelper.hpp"
+#include "Altona2/Libs/Util/GraphicsHelper.hpp"
 
 using namespace Altona2;
 
@@ -28,6 +28,7 @@ using namespace Altona2;
 void Altona2::Main()
 {
   sInt flags = 0;
+    flags |= sSM_NoVSync;
 //  flags |= sSM_Fullscreen;
   sRunApp(new App,sScreenMode(flags,"benchmark",1280,720));
 }

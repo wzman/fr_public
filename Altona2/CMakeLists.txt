@@ -46,5 +46,6 @@ add_subdirectory (Altona2/Libs/Util)
 
 # add examples sub-projects
 
+add_subdirectory (Altona2/Examples/graphics/benchmark)
 add_subdirectory (Altona2/Examples/graphics/cube)
 
