@@ -53,13 +53,13 @@ namespace Altona2 {
 
 /****************************************************************************/
 
-#ifdef sDEFINE_DX9
+#if defined(sDEFINE_DX9)
 #define sConfigRender         sConfigRenderDX9
-#elif sDEFINE_DX11
+#elif defined(sDEFINE_DX11)
 #define sConfigRender         sConfigRenderDX11
-#elif sDEFINE_GL2
+#elif defined(sDEFINE_GL2)
 #define sConfigRender         sConfigRenderGL2
-#elif sDEFINE_GLES2
+#elif defined(sDEFINE_GLES2)
 #define sConfigRender         sConfigRenderGLES2
 #else
 #define sConfigRender         sConfigRenderNull
