@@ -158,7 +158,7 @@ public:
     ~sPerfMonGpuZone() { sGpuPerfMon->Leave(Section); }
 };
 
-#if sConfigPlatform!=sConfigPlatformWin
+#if sConfigPlatform!=sConfigPlatformWin && sConfigPlatform!=sConfigPlatformLinux
 
 #define sZONE(n,c) 
 #define sGPU_ZONE(n,c)

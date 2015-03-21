@@ -61,7 +61,7 @@ public:
     }
 } sPerfMonSubsystem_;
 
-#if sConfigRender == sConfigRenderDX9 || sConfigRender==sConfigRenderDX11
+#if sConfigRender == sConfigRenderDX9 || sConfigRender==sConfigRenderDX11 || sConfigRender==sConfigRenderGL2
 class sPerfMonSubsystemGpu : public sSubsystem
 {
 public:

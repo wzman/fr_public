@@ -320,7 +320,7 @@ void sDebugPainter::PrintPerfMon(int history,int frames)
 
 float sDebugPainter::DrawPerfMon(sContext *ctx,const sTargetPara &tp,sRect *clientrect)
 {
-#if sConfigPlatform==sConfigPlatformWin
+#if sConfigPlatform==sConfigPlatformWin || sConfigPlatform==sConfigPlatformLinux
 
     if(sGetPerfMonThreads()==0)
         return 10;

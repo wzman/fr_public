@@ -86,11 +86,15 @@ uint sGetKeyQualifier()
 
 void sGetMouse(int &x,int &y,int &b)
 {
+    x = DragData.PosX;
+    y = DragData.PosY;
+    b = NewMouseButtons;
 }
 
 void sExit()
 {
-  ExitFlag = 1;
+    sLog("sys","sExit()");
+    ExitFlag = 1;
 }
 
 /****************************************************************************/
