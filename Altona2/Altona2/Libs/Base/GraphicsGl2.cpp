@@ -888,61 +888,68 @@ public:
         *sf++ = sRF_D24;
         *sf++ = sRF_D24S8;
 
-		GLint params;
-		GLint ta[32];
-        glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS,&params);
-		glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS,ta);
-        
-        for (int i=0;i<params;i++)
-        {
-        	switch (ta[i])
-            {
-                case 0x83f3 :
-                    *sf++ = sRF_BC3;
-                    sLog("GL","COMPRESSED_RGBA_S3TC_DXT5_EXT");
-                break;
-                case 0x83f2 :
-                    *sf++ = sRF_BC2;
-                    sLog("GL","COMPRESSED_RGBA_S3TC_DXT3_EXT");
-                break;
-                case 0x83f0 :
-                    *sf++ = sRF_BC1;
-                    sLog("GL","COMPRESSED_RGB_S3TC_DXT1_EXT");
-                break;
-                case 0x8d64 :
-                    *sf++ = sRF_ETC1;
-                    sLog("GL","COMPRESSED_RGB8_ETC1");
-                break;
-                case 0x9274 :
-                    *sf++ = sRF_ETC2;
-                    sLog("GL","COMPRESSED_RGB8_ETC2");
-                break;
-                case 0x9278 :
-                    *sf++ = sRF_ETC2A;
-                    sLog("GL","COMPRESSED_RGBA8_ETC2_EAC");
-                break;
-                case 0x8c00 :
-                    *sf++ = sRF_PVR4;
-                    sLog("GL","COMPRESSED_RGB_PVRTC_4BPPV1_IMG");
-                break;
-                case 0x8c01 :
-                    *sf++ = sRF_PVR2;
-                    sLog("GL","COMPRESSED_RGB_PVRTC_2BPPV1_IMG");
-                break;
-                case 0x8c02 :
-                    *sf++ = sRF_PVR4A;
-                    sLog("GL","COMPRESSED_RGBA_PVRTC_4BPPV1_IMG");
-                break;
-                case 0x8c03 :
-                    *sf++ = sRF_PVR2A;
-                    sLog("GL","COMPRESSED_RGBA_PVRTC_2BPPV1_IMG");                                        
-                break;
-                default :
-                	sLogF("GL","Unknown compression %d",ta[i]);
-                break;
-            }
-        }
-        *sf = 0;
+		GLint num=0;
+		glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &num);
+
+		if (num > 0)
+		{
+			GLint* formats = new GLint[num];
+			sSetMem(formats, 0, num);
+			glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
+
+			for (int i=0; i<num; i++)
+			{
+				switch (formats[i])
+				{
+				case 0x83f3:
+					*sf++ = sRF_BC3;
+					sLog("GL", "COMPRESSED_RGBA_S3TC_DXT5_EXT");
+					break;
+				case 0x83f2:
+					*sf++ = sRF_BC2;
+					sLog("GL", "COMPRESSED_RGBA_S3TC_DXT3_EXT");
+					break;
+				case 0x83f0:
+					*sf++ = sRF_BC1;
+					sLog("GL", "COMPRESSED_RGB_S3TC_DXT1_EXT");
+					break;
+				case 0x8d64:
+					*sf++ = sRF_ETC1;
+					sLog("GL", "COMPRESSED_RGB8_ETC1");
+					break;
+				case 0x9274:
+					*sf++ = sRF_ETC2;
+					sLog("GL", "COMPRESSED_RGB8_ETC2");
+					break;
+				case 0x9278:
+					*sf++ = sRF_ETC2A;
+					sLog("GL", "COMPRESSED_RGBA8_ETC2_EAC");
+					break;
+				case 0x8c00:
+					*sf++ = sRF_PVR4;
+					sLog("GL", "COMPRESSED_RGB_PVRTC_4BPPV1_IMG");
+					break;
+				case 0x8c01:
+					*sf++ = sRF_PVR2;
+					sLog("GL", "COMPRESSED_RGB_PVRTC_2BPPV1_IMG");
+					break;
+				case 0x8c02:
+					*sf++ = sRF_PVR4A;
+					sLog("GL", "COMPRESSED_RGBA_PVRTC_4BPPV1_IMG");
+					break;
+				case 0x8c03:
+					*sf++ = sRF_PVR2A;
+					sLog("GL", "COMPRESSED_RGBA_PVRTC_2BPPV1_IMG");
+					break;
+				default:
+					sLogF("GL", "Unknown compression %d", formats[i]);
+					break;
+				}
+			}
+			*sf = 0;
+
+			sDeleteArray(formats);
+		}
 
         RestartFlag = 1;
     }
