@@ -44,7 +44,7 @@ foreach(file ${asc_files})
         COMMAND asc -i=${file}
                     -o=${outobj}
                     -h=${outhpp}
-                    -p=${renderer} -x64
+                    -p=${renderer} -${config_arch}
     )
     add_dependencies(${PROJECT_NAME} ${target})
     target_link_libraries(${PROJECT_NAME} LINK_PRIVATE ${outobj} )

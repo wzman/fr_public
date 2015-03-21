@@ -1,21 +1,43 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (Altona2)
 
-set(renderer gl2)
+# detect system and architecture
 
-# Altona2 root dir
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    message(STATUS "OS is Windows")
+    set(config_os "Windows")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    message(STATUS "OS is Linux")
+    set(config_os "Linux")
+endif()
 
-include_directories( /home/fred/github/fr_public/Altona2  )
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    message(STATUS "Target is 64 bits")
+    set(config_arch x64)
+else("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    message(STATUS "Target is 32 bits")
+    set(config_arch x32)
+endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 
-# compiler flags
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lrt -g")
+# automatic setup
 
-# user definitions
+if( ${config_os} MATCHES "Linux" )
+    message(STATUS "Automatic setup for Linux")
+    set(renderer gl2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    add_definitions(-DsDEFINE_LINUX -DsDEFINE_GL2)
+else()
+    message(FATAL_ERROR "Automatic setup not defined on ${CMAKE_SYSTEM_NAME}...")
+    # implement me
+endif()
 
-#-DsDEFINE_FINAL
-#-DsDEFINE_MEMDEBUG
-add_definitions( -DsDEFINE_LINUX  -DsDEFINE_GL2)
+
+# include Altona2 root directory
+
+set(altona2_root_dir ${CMAKE_CURRENT_LIST_DIR})
+message(STATUS "Altona2 root dir is : ${altona2_root_dir}")
+include_directories( ${altona2_root_dir} )
 
 # add libraries sub-projects
 
@@ -25,6 +47,4 @@ add_subdirectory (Altona2/Libs/Util)
 # add examples sub-projects
 
 add_subdirectory (Altona2/Examples/graphics/cube)
-
-
 
