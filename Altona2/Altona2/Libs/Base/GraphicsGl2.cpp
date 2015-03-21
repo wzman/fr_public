@@ -769,7 +769,7 @@ void sRenderGL()
         CurrentApp->OnPaint();
         sEndFrameHook.Call();
         if(sGC) sGC->CollectIfTriggered();
-        sUpdateGfxStats();
+        //sUpdateGfxStats();
     }
 }
 
