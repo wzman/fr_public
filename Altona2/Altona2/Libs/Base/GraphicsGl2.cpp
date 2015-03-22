@@ -1181,6 +1181,9 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         case sRU_MapRead:
             Usage = GL_DYNAMIC_DRAW;
             break;
+        case sRU_Update:
+            Usage = GL_DYNAMIC_DRAW;
+            break;
         default:
             sASSERT0();
             break;
