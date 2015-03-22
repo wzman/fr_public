@@ -48,4 +48,6 @@ add_subdirectory (Altona2/Libs/Util)
 
 add_subdirectory (Altona2/Examples/graphics/benchmark)
 add_subdirectory (Altona2/Examples/graphics/cube)
+add_subdirectory (Altona2/Examples/graphics/DynamicVertexUpdate)
+
 
