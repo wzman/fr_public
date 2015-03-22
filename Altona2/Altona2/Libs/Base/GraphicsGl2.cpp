@@ -1509,9 +1509,47 @@ void sResource::Unmap(sContext *ctx)
     Loading = 0;
 }
 
+
 void sResource::UpdateBuffer(void *data,int startbyte,int bytesize)
 {
-    sFatal("sResource::UpdateBuffer - not implemented");
+    //sFatal("sResource::UpdateBuffer - not implemented");
+
+    if (!GLEW_VERSION_3_2 != 0)
+        sFatal("require opengl 3.2 at least");
+
+    sASSERT((Para.Mode & sRU_Mask) == sRU_Update);
+
+    GLboolean success;
+    static GLsync fence;
+
+    // Bind buffer and map buffer
+
+    Loading = 1;
+    if (MainBind == sRBM_Vertex)
+        Loading = GL_ARRAY_BUFFER;
+    if (MainBind == sRBM_Index)
+        Loading = GL_ELEMENT_ARRAY_BUFFER;
+    sASSERT(Loading);
+    glBindBuffer(Loading, GLName);
+    GLERR();
+
+    void *old_data = glMapBufferRange(GL_ARRAY_BUFFER, startbyte, bytesize,
+        GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT |  GL_MAP_UNSYNCHRONIZED_BIT);
+
+    // Wait for fence (set below) before modifying buffer.
+
+    GLenum waitResult = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
+    GLERR();
+
+    // Modify buffer, flush, and unmap.
+
+    sCopyMem(old_data, data, bytesize);
+    glFlushMappedBufferRange(GL_ARRAY_BUFFER, startbyte, bytesize);
+    GLERR();
+    success = glUnmapBuffer(GL_ARRAY_BUFFER);
+
+    // Create a fence that the next frame will wait for.
+    fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
 void sResource::UpdateTexture(void *data,int miplevel,int arrayindex)
