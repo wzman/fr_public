@@ -17,7 +17,7 @@
 
 void Altona2::Main()
 {
-  sRunApp(new App,sScreenMode(sSM_Fullscreen*0,"instances",1280,720));
+  sRunApp(new App, sScreenMode(sSM_NoVSync|sSM_Fullscreen * 0, "instances", 1280, 720));
 }
 
 /****************************************************************************/
@@ -131,7 +131,7 @@ void App::OnPaint()
   cbv0->Unmap();
 
   vert1 *vp;
-  Geo->VB(1)->MapBuffer(&vp);
+  Geo->VB(1)->MapBuffer(&vp, sRMM_Discard);
   for(sInt i=0;i<PartCount;i++)
   {
     sF32 lx,ly,lz;
