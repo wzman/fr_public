@@ -9,8 +9,8 @@
 #ifndef FILE_ALTONA2_EXAMPLES_GRAPHICS_CUBE_MAIN_HPP
 #define FILE_ALTONA2_EXAMPLES_GRAPHICS_CUBE_MAIN_HPP
 
-#include "altona2/libs/base/base.hpp"
-#include "altona2/libs/util/debugpainter.hpp"
+#include "Altona2/Libs/Base/Base.hpp"
+#include "Altona2/Libs/Util/DebugPainter.hpp"
 #include "shader.hpp"
 
 using namespace Altona2;
