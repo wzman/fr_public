@@ -362,6 +362,9 @@ void Private::InitGL()
     DefaultContext->Adapter = DefaultAdapter;
     DefaultAdapter->Init();
 
+    // enable/disable vsync
+    wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+
     InitGLCommon();
 }
 
