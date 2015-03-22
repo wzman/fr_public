@@ -2353,7 +2353,7 @@ void sContext::Draw(const sDrawPara &dp)
         {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
             GLERR();
-            glDrawElementsInstanced(topology,ic,is,(const void *)uptr(ic + dp.IndexOffset),dp.InstanceCount);
+            glDrawElementsInstanced(topology,ic,is,(const void *)uptr(ip + dp.IndexOffset),dp.InstanceCount);
             GLERR();
         }
     }
