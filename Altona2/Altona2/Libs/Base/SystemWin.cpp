@@ -1194,7 +1194,7 @@ void sRunApp(sApp *app,const sScreenMode &sm_)
   CurrentApp->OnExit();
   sGC->CollectNow();
 
-#if sConfigRender!=sConfigRenderGL2
+#if sConfigRender!=sConfigRenderGL2 || sConfigRender!=sConfigRenderGL4
   sSubsystem::SetRunlevel(0x7f);
 #endif
   sWinMessageHook.FreeMemory();

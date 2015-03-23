@@ -18,6 +18,6 @@
 /****************************************************************************/
 
 #define VERSION 1
-#define REVISION 34
+#define REVISION 35
 
 #endif  // FILE_ALTONA2_TOOLS_MAKEPROJECT_MAIN_HPP

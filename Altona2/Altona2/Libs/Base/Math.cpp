@@ -1215,7 +1215,7 @@ void sViewport::Prepare(int sx,int sy)
         break;  
     }
 
-    if(sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2)
+    if (sConfigRender == sConfigRenderGL2 || sConfigRender == sConfigRenderGLES2 || sConfigRender == sConfigRenderGL4)
     {
         Projection.k.z = 2*Projection.k.z - 1;
         Projection.k.w = 2*Projection.k.w;

@@ -178,6 +178,7 @@ enum wSourceLanguage
     wSL_Hlsl3 = 0,
     wSL_Hlsl5,
     wSL_Glsl1,
+    wSL_Glsl4,
     wSL_Max,
 };
 

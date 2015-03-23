@@ -41,5 +41,13 @@ library "Base"
         file "GraphicsGlew.?pp" options "!*Gl*" { exclude; };
         file "GraphicsNull.?pp" options "!*Null*" { exclude; };
         file "DxShaderCompiler.?pp" options "!*Win32" { exclude; };
+        file "GraphicsGl4.?pp" options "!*Gl*" { exclude; };
+        file "gl3w.c" options "!*Gl*" { exclude; };
+
+        folder "GL"
+        {
+            file "GL/gl3w.h" options "!*Gl*" { exclude; };
+            file "GL/glcorearb.h" options "!*Gl*" { exclude; };
+        }
     }
 }

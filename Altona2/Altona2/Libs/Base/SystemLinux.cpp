@@ -52,7 +52,7 @@ void sRunApp(sApp *app,const sScreenMode &sm)
 
   CurrentApp->OnInit();
   
-  #if sConfigRender==sConfigRenderGL2
+  #if sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGL4
   ExitFlag = 0;
   XMainLoop();
   #endif

@@ -34,7 +34,7 @@ void Altona2::Main()
     cmd.AddFile("!h",headerfile,0,"output header file (xxx.hpp)");
     cmd.AddFile("o",objfile,&isobjfile,"output object file (final_null_shell_win32/xxx.o)");
     cmd.AddFile("cpp",cppfile,&iscppfile,"output cpp file (xxx.cpp)");
-    cmd.AddString("!p",platformstring,0,"platform: dx9 dx11 blank gl2 gles2");
+    cmd.AddString("!p",platformstring,0,"platform: dx9 dx11 blank gl2 gles2 gl4");
     cmd.AddFile("d",dumpfile,&dump,"dump debug info into file");
     cmd.AddSwitch("x64",x64bit,"compile for 64 bit");
 
@@ -62,6 +62,8 @@ void Altona2::Main()
         platform = sConfigRenderGL2;
     if(platformstring=="gles2")
         platform = sConfigRenderGLES2;
+    if (platformstring=="gl4")
+        platform = sConfigRenderGL4;
     if(platformstring=="null")
         platform = sConfigRenderNull;
     if(platform==0)

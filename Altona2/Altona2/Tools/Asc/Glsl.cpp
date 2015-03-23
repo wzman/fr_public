@@ -790,6 +790,8 @@ sBool wDocument::GlslParse(sInt stage,const sChar *source,sInt line)
 
     if(Platform==sConfigRenderGLES2)
         Out.Print("#version 100\n");
+    if (Platform==sConfigRenderGL4)
+        Out.Print("#version 120\n");
     else
         Out.Print("#version 120\n");
 

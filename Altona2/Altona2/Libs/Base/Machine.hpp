@@ -35,7 +35,7 @@ namespace Altona2 {
 #define sConfigRenderDX11     22
 #define sConfigRenderGL2      23
 #define sConfigRenderGLES2    24
-//#define sConfigRenderGL4      25
+#define sConfigRenderGL4      25
 //#define sConfigRenderGLES1    26
 
 // compiler frontend
@@ -61,6 +61,8 @@ namespace Altona2 {
 #define sConfigRender         sConfigRenderGL2
 #elif defined(sDEFINE_GLES2)
 #define sConfigRender         sConfigRenderGLES2
+#elif defined(sDEFINE_GL4)
+#define sConfigRender         sConfigRenderGL4
 #else
 #define sConfigRender         sConfigRenderNull
 #endif

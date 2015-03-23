@@ -316,6 +316,10 @@ void wDocument::AscShader(sShaderTypeEnum st)
     {
         sl = wSL_Glsl1;
     }
+    else if (Scan->IfName("glsl4"))
+    {
+        sl = wSL_Glsl4;
+    }
     else
     {
         sl = wSL_Glsl1;

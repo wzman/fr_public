@@ -1750,7 +1750,7 @@ bool sGetTimeQuery(sGpuQuery *query,float &seconds_since_frame_start)
 /***                                                                      ***/
 /****************************************************************************/
 
-#if sConfigRender==sConfigRenderDX9 || sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderNull
+#if sConfigRender==sConfigRenderDX9 || sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderNull || sConfigRender==sConfigRenderGL4
 
 
 sDispatchContext::sDispatchContext()

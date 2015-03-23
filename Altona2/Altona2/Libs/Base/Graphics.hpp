@@ -300,7 +300,7 @@ enum sVertexFlags                       // specify vertex format by a series of 
     sVF_End           = 0,              // endmarker.
 };
 
-#if sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderGL2
+#if sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGL4
 #define sVERTEXCOLOR(x) (((x)&0xff00ff00)|(((x)&0x00ff0000)>>16)|((x)&0x000000ff)<<16)
 #else
 #define sVERTEXCOLOR(x) (x)
@@ -718,6 +718,9 @@ class sScreen;
 #if sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2
 #include "Altona2/Libs/Base/GraphicsGl2.hpp"
 #endif
+#if sConfigRender==sConfigRenderGL4
+#include "Altona2/Libs/Base/GraphicsGl4.hpp"
+#endif
 
 namespace Altona2 {
 
@@ -926,7 +929,7 @@ public:
 #if sConfigRender==sConfigRenderGLES2
     sResource(sAdapter *adapter,const sResPara &,uint glName,bool externalOES);
 #endif
-#if sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderGL2
+#if sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGL4
     void UpdateTexture(void *data, int sizex, int sizey,int miplevel);
 #endif
 
@@ -1642,7 +1645,7 @@ struct sVertexPNT
 /***                                                                      ***/
 /****************************************************************************/
 
-#if sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2
+#if sConfigRender==sConfigRenderGL2 || sConfigRender==sConfigRenderGLES2 || sConfigRender==sConfigRenderGL4
 #define sDG_ARRAYS 1
 #else
 #define sDG_ARRAYS 0

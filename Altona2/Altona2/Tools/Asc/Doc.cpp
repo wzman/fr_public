@@ -194,6 +194,18 @@ void wDocument::GetCode(sBool cpp)
                             }
                         }
                     }
+                    else if (Platform==sConfigRenderGL4)
+                    {
+                        if (!mtrl->Sources[wSL_Glsl4][stage].Source.IsEmpty())
+                        {
+                            if (EnableDump)
+                                Dump.PrintF("\n*** %s %d.%s ***\n\n", mtrl->Name, Permutation, shadername[stage]);
+                            if (GlslParse(stage, mtrl->Sources[wSL_Glsl4][stage].Source, mtrl->Sources[wSL_Glsl4][stage].Line))
+                            {
+                                shader = new wShader(Out.GetCount() + 1, (const sU8 *)Out.Get());
+                            }
+                        }
+                    }
                     else
                     {
                         shader = new wShader(4,(sU8 *)"fake");

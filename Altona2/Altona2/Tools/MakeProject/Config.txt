@@ -1061,6 +1061,80 @@ options gl2
     }
 }
 
+options gl4
+{
+    group vs2013 "ClCompile"
+    {
+        item "PreprocessorDefinitions" += "sDEFINE_GL4;";
+    }
+    group vs2013 "Link"
+    {
+        item "AdditionalDependencies" += "opengl32.lib;";
+    }
+    group vs2013 "asc"
+    {
+        item x86 "Message" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+        item x86 "Command" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+        item x64 "Message" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4 -x64";
+        item x64 "Command" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4 -x64";
+    }
+
+    group vs2012 "ClCompile"
+    {
+        item "PreprocessorDefinitions" += "sDEFINE_GL4;";
+    }
+    group vs2012 "Link"
+    {
+        item "AdditionalDependencies" += "opengl32.lib;";
+    }
+    group vs2012 "asc"
+    {
+        item x86 "Message" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+        item x86 "Command" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+        item x64 "Message" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4 -x64";
+        item x64 "Command" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4 -x64";
+    }
+
+    group vs2010 "ClCompile"
+    {
+        item "PreprocessorDefinitions" += "sDEFINE_GL4;";
+    }
+    group vs2010 "Link"
+    {
+        item "AdditionalDependencies" += "opengl32.lib;";
+    }
+    group vs2010 "asc"
+    {
+        item "Message" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+        item "Command" = "asc2 -i=%(Filename)%(Extension) -o=\\$(OutDir)/\\%(Filename).obj -h=%(Filename).hpp -p=gl4";
+    }
+
+    group vs2008 "VCCLCompilerTool"
+    {
+        item "PreprocessorDefinitions" += "sDEFINE_GL4;";
+    }
+    group vs2008 "VCLinkerTool"
+    {
+        item "AdditionalDependencies" += " opengl32.lib";
+    }
+    group vs2008 "asc"
+    {
+        item "Description" = "asc2 -i=\\$(InputFileName) -o=\\$(OutDir)/\\$(InputName).obj -h=\\$(InputName).hpp -p=gl4";
+        item "CommandLine" = "asc2 -i=\\$(InputFileName) -o=\\$(OutDir)/\\$(InputName).obj -h=\\$(InputName).hpp -p=gl4";
+    }
+
+    group make ""
+    {
+        item "cflags" += " -DsDEFINE_GL4";
+        item "renderer" = "gl4";
+        item "libs" += " -lX11 -lGL -lGLU -lXxf86vm";
+    }
+    group xcode4 "PBXProject"
+    {
+        item "GCC_PREPROCESSOR_DEFINITIONS" += "sDEFINE_GL4 ";
+    }
+}
+
 options gles2
 {
     group ndk ""
@@ -1137,6 +1211,16 @@ platform win32
     combine "dfast_gl2_player_win32" = win32 + gl2 + player + dfast;
     combine "optim_gl2_player_win32" = win32 + gl2 + player + optim;
     combine "final_gl2_player_win32" = win32 + gl2 + player + final;
+
+    combine "debug_gl4_win32" = win32 + gl4 + debug;
+    combine "dfast_gl4_win32" = win32 + gl4 + dfast;
+    combine "optim_gl4_win32" = win32 + gl4 + optim;
+    combine "final_gl4_win32" = win32 + gl4 + final;
+
+    combine "debug_gl4_player_win32" = win32 + gl4 + player + debug;
+    combine "dfast_gl4_player_win32" = win32 + gl4 + player + dfast;
+    combine "optim_gl4_player_win32" = win32 + gl4 + player + optim;
+    combine "final_gl4_player_win32" = win32 + gl4 + player + final;
 }
 
 platform linux
@@ -1150,6 +1234,11 @@ platform linux
     combine "dfast_gl2_linux" = linux + gl2 + dfast;
     combine "optim_gl2_linux" = linux + gl2 + optim;
     combine "final_gl2_linux" = linux + gl2 + final;
+
+    combine "debug_gl4_linux" = linux + gl4 + debug;
+    combine "dfast_gl4_linux" = linux + gl4 + dfast;
+    combine "optim_gl4_linux" = linux + gl4 + optim;
+    combine "final_gl4_linux" = linux + gl4 + final;
 }
 
 platform android
