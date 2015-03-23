@@ -31,11 +31,15 @@ PFNGLXSWAPINTERVALEXTPROC               glwSwapIntervalEXT;
 
 #endif
 
-#define GL_CONTEXT_MAJOR_VERSION_ARB               0x2091
-#define GL_CONTEXT_MINOR_VERSION_ARB               0x2092
-#define GL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
-#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
-#define GL_CONTEXT_PROFILE_MASK_ARB                0x9126
+#define GL_CONTEXT_MAJOR_VERSION_ARB                0x2091
+#define GL_CONTEXT_MINOR_VERSION_ARB                0x2092
+#define GL_CONTEXT_LAYER_PLANE_ARB                  0x2093
+#define GL_CONTEXT_FLAGS_ARB                        0x2094
+#define GL_CONTEXT_CORE_PROFILE_BIT_ARB             0x0001
+#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB    0x0002
+#define GL_CONTEXT_PROFILE_MASK_ARB                 0x9126
+#define GL_CONTEXT_DEBUG_BIT_ARB                    0x0001
+#define GL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB       0x0002
 
 #define GL_DEPTH_STENCIL_EXT                        0x84F9
 #define GL_UNSIGNED_INT_24_8_EXT                    0x84FA
@@ -274,23 +278,119 @@ static const char *GetGLErrMsg(uint err)
     }
     return em;    
 }
-    
-static void GLError(uint err,const char *file,int line)
+
+static void GLError(uint err,const char *file,int line,char *function)
 {
     if(err!=0)
     {
-      sDPrintF("%s(%d): error %08x (%d)\n",file,line,err,err&0x3fff);
-      sDPrintF("%s\n",GetGLErrMsg(err));
+        sDPrintF("%s(%d): error %08x (%d) - %s\n",file,line,err,err&0x3fff,function);
+        sDPrintF("%s\n",GetGLErrMsg(err));
+#if sConfigDebug
+        sFatal("GLError");
+#endif
     }
 }
 #define GLErr(hr) { if(!(hr)) sDPrintF("%s(%d): gl null handle\n",__FILE__,__LINE__); }
-#define GLERR() { int err=glGetError(); if(err) GLError(err,__FILE__,__LINE__); }
+#define GLERR() { int err=glGetError(); if(err) GLError(err,__FILE__,__LINE__,__FUNCTION__); }
 
 #else
 
 #define GLErr(hr)
 #define GLERR()
 
+#endif
+
+/****************************************************************************/
+
+#if sConfigDebug
+void APIENTRY callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
+    GLenum severity, GLsizei length, const GLchar * msg, const void * param)
+{
+    sPrintF("---------------------sGLDebugCallback-start--------------------\n");
+    sString<64> sourceStr;
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        sourceStr = "WindowSys";
+        break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+        sourceStr = "App";
+        break;
+    case GL_DEBUG_SOURCE_API:
+        sourceStr = "OpenGL";
+        break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        sourceStr = "ShaderCompiler";
+        break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        sourceStr = "3rdParty";
+        break;
+    case GL_DEBUG_SOURCE_OTHER:
+        sourceStr = "Other";
+        break;
+    default:
+        sourceStr = "Unknown";
+    }
+
+    sString<64> typeStr;
+    switch (type)
+    {
+    case GL_DEBUG_TYPE_ERROR:
+        typeStr = "Error";
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        typeStr = "Deprecated";
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        typeStr = "Undefined";
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        typeStr = "Portability";
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        typeStr = "Performance";
+        break;
+    case GL_DEBUG_TYPE_MARKER:
+        typeStr = "Marker";
+        break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+        typeStr = "PushGrp";
+        break;
+    case GL_DEBUG_TYPE_POP_GROUP:
+        typeStr = "PopGrp";
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        typeStr = "Other";
+        break;
+    default:
+        typeStr = "Unknown";
+    }
+
+    sString<64> sevStr;
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        sevStr = "HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        sevStr = "MED";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        sevStr = "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        sevStr = "NOTIFY";
+        break;
+    default:
+        sevStr = "UNK";
+    }
+    sPrintF("%s:%s[%s](%d): %s\n", sourceStr, typeStr, sevStr, id, msg);
+    sPrintF("---------------------sGLDebugCallback-end--------------------\n");
+
+    // stop for backtrace debug
+    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM || severity == GL_DEBUG_SEVERITY_LOW)
+        sFatal("GL_DEBUG_SEVERITY_HIGH");
+}
 #endif
 
 
@@ -401,17 +501,30 @@ void Private::InitGL()
     if (!wglCreateContextAttribsARB || !wglSwapIntervalEXT)
         sFatal("Required GL extensions not found");
 
-    // specific opengl version
+    // set specific opengl version and profile
+
+    // for forward compatibility mode :
+    //WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+    // for Compatibility profile :
+    //WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+    // for Core profile :
+    //WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+    // for Debug and enable glDebugMessageCallback
+    //WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
+
     const int attribs[] = {
         GL_CONTEXT_MAJOR_VERSION_ARB, 4,
         GL_CONTEXT_MINOR_VERSION_ARB, 4,
-        GL_CONTEXT_PROFILE_MASK_ARB,
-        /*GL_CONTEXT_CORE_PROFILE_BIT_ARB*/ GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+#if sConfigDebug
+        GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
+#endif
+        GL_CONTEXT_PROFILE_MASK_ARB, GL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
 
     // create specific context and profile gl version to replace temp context
     Glrc = wglCreateContextAttribsARB(Gdc, 0, attribs);
+    GLERR();
     sASSERT(Glrc);
     wglMakeCurrent(0, 0);
     wglDeleteContext(tmpGlrc);
@@ -426,6 +539,13 @@ void Private::InitGL()
 
     // enable/disable vsync
     wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+
+#if sConfigDebug
+    // set debug message callback
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback((Altona2::GLDEBUGPROC)callbackDebugMsgFunction, nullptr);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
+#endif
 
     InitGLCommon();
 }
@@ -880,7 +1000,6 @@ public:
         GlVendor   = (const char *)glGetString(GL_VENDOR);
         GlRenderer = (const char *)glGetString(GL_RENDERER);
         GlVersion  = (const char *)glGetString(GL_VERSION);
-        const char *ext = (const char *) glGetString(GL_EXTENSIONS);
         GlShaderVersion = (const char *) glGetString(GL_SHADING_LANGUAGE_VERSION);
 
         sLogF("gfx","GL Vendor   <%s>",GlVendor);
@@ -888,57 +1007,7 @@ public:
         sLogF("gfx","GL Version  <%s>",GlVersion);
         sLogF("gfx","GL Shaders  <%s>",GlShaderVersion);
 
-        // extensions
-
-        /*sString<256> buffer;
-        sLogF("gfx","GL Extensions:");
-
-        #if sConfigPlatform==sConfigPlatformWin
-        //const char *ext2 = wglGetExtensionsStringARB(Gdc);
-        #endif
-
-        int depth = 0;
-
-        while(*ext!=0)
-        {
-            int i=0;
-            while(*ext==' ') ext++;
-            while(*ext!=' ' && *ext!=0)
-                buffer[i++] = *ext++;
-            while(*ext==' ') ext++;
-            buffer[i++] = 0;
-
-
-            if (buffer=="GL_OES_depth24") depth++;
-            if (buffer=="GL_OES_depth_texture") depth++;
-            if (buffer=="GL_OES_packed_depth_stencil") depth++;
-
-            if (buffer=="GL_OES_EGL_image_external") Private::GlOESEGLImageExternal=true;    
-
-            sLogF("gfx","  <%s>",buffer);
-
-#if sConfigPlatform == sConfigPlatformAndroid || sConfigPlatform == sConfigPlatformIOS
-            if (buffer=="GL_OES_element_index_uint") Private::GLOESElementIndexUint=true;            
-#endif
-#if sConfigPlatform==sConfigPlatformWin
-            if(*ext==0)
-            {
-                ext = ext2;
-                ext2 = "";
-            }
-#endif
-        }
-        sLogF("gfx",".. end of extension list");
-
-#if sConfigPlatform == sConfigPlatformAndroid
-        if (depth==3)
-        {
-            Private::DefaultRTDepthFormat = sRF_D24S8;            
-            Private::DefaultRTDepthIsUsableInShader = true;
-            sLogF("gfx","depth texture available");
-        }
-#endif*/
-
+        // check resources format
 
         int *sf = sSupportedFormats;
         *sf++ = sRF_RGBA8888;
@@ -1282,6 +1351,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
+        glGenVertexArrays(1, &GLNameVAO);
+        GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,GLName);
@@ -1290,6 +1361,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         glBufferData(GL_ARRAY_BUFFER,TotalSize,data,Usage);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,0);
+        GLERR();
+        glBindVertexArray(0);
         GLERR();
     }
     else if(Para.Mode & sRBM_Index)
@@ -2367,6 +2440,7 @@ void sContext::Draw(const sDrawPara &dp)
             const void *data = 0;
             if(geo)
             {
+                glBindVertexArray(geo ? geo->Vertex[at->Stream]->GLNameVAO : 0);
                 glBindBuffer(GL_ARRAY_BUFFER,geo ? geo->Vertex[at->Stream]->GLName : 0);
                 GLERR();
             }
@@ -2491,6 +2565,8 @@ void sContext::Draw(const sDrawPara &dp)
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
                 GLERR();
                 glDrawElements(topology,ic,is,(const void *)uptr(ip + dp.IndexOffset));
+                GLERR();
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 GLERR();
             }
         }
