@@ -11,20 +11,31 @@
 
 #if sConfigRender==sConfigRenderGL4
 
-typedef BOOL(WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
+// needed extensions
+
+#if sConfigPlatform==sConfigPlatformWin
+
 typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int *attribList);
 typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 
-PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
 PFNWGLSWAPINTERVALEXTPROC               wglSwapIntervalEXT;
 
-#define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB               0x2092
+#elif sConfigPlatform==sConfigPlatformLinux
 
-#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
-#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
-#define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
+typedef GLXContext ( * PFNGLXCREATECONTEXTATTRIBSARBPROC) (Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+typedef void ( * PFNGLXSWAPINTERVALEXTPROC) (Display* dpy, GLXDrawable drawable, int interval);
+
+PFNGLXCREATECONTEXTATTRIBSARBPROC       glxCreateContextAttribsARB
+PFNGLXSWAPINTERVALEXTPROC               glwSwapIntervalEXT;
+
+#endif
+
+#define GL_CONTEXT_MAJOR_VERSION_ARB               0x2091
+#define GL_CONTEXT_MINOR_VERSION_ARB               0x2092
+#define GL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
+#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
+#define GL_CONTEXT_PROFILE_MASK_ARB                0x9126
 
 #define GL_DEPTH_STENCIL_EXT                        0x84F9
 #define GL_UNSIGNED_INT_24_8_EXT                    0x84FA
@@ -36,7 +47,6 @@ PFNWGLSWAPINTERVALEXTPROC               wglSwapIntervalEXT;
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT            0x83F1
 #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT            0x83F2
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT            0x83F3
-
 
 #define GL_SAMPLER_EXTERNAL_OES                     0x8D66
 #define GL_TEXTURE_EXTERNAL_OES                     0x8D65
@@ -379,29 +389,33 @@ void Private::InitGL()
     GLErr(tmpGlrc);
     GLErr(wglMakeCurrent(Gdc, tmpGlrc));
 
+    // init gl3w library
+    if (gl3wInit())
+        sFatal("Failed to initialize gl3w");
+    if (!gl3wIsSupported(4, 4))
+        sFatal("OpenGL 4.4 not supported");
+
     // get needed extensions
     wglCreateContextAttribsARB = (HGLRC(WINAPI *) (HDC hDC, HGLRC hShareContext, const int *attribList)) gl3wGetProcAddress("wglCreateContextAttribsARB");
+    wglSwapIntervalEXT = (BOOL(WINAPI *) (int interval)) gl3wGetProcAddress("wglSwapIntervalEXT");
+    if (!wglCreateContextAttribsARB || !wglSwapIntervalEXT)
+        sFatal("Required GL extensions not found");
 
     // specific opengl version
     const int attribs[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-        WGL_CONTEXT_PROFILE_MASK_ARB,
-        /*WGL_CONTEXT_CORE_PROFILE_BIT_ARB*/ WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+        GL_CONTEXT_MAJOR_VERSION_ARB, 4,
+        GL_CONTEXT_MINOR_VERSION_ARB, 4,
+        GL_CONTEXT_PROFILE_MASK_ARB,
+        /*GL_CONTEXT_CORE_PROFILE_BIT_ARB*/ GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
         0
     };
 
     // create specific context and profile gl version to replace temp context
     Glrc = wglCreateContextAttribsARB(Gdc, 0, attribs);
+    sASSERT(Glrc);
     wglMakeCurrent(0, 0);
     wglDeleteContext(tmpGlrc);
     wglMakeCurrent(Gdc, Glrc);
-
-    // init gl3w library
-    if (gl3wInit())
-        sFatal("Failed to initialize gl3w");
-    if (!gl3wIsSupported(4, 2))
-        sFatal("OpenGL 4.2 not supported");
 
     DefaultAdapter = new sAdapter();
     DefaultScreen = 0;
@@ -411,7 +425,7 @@ void Private::InitGL()
     DefaultAdapter->Init();
 
     // enable/disable vsync
-    //wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+    wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
 
     InitGLCommon();
 }
