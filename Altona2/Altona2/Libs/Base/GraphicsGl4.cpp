@@ -11,8 +11,35 @@
 
 #if sConfigRender==sConfigRenderGL4
 
-#define GL_SAMPLER_EXTERNAL_OES 0x8D66
-#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+typedef BOOL(WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
+typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int *attribList);
+typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
+
+PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
+PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
+PFNWGLSWAPINTERVALEXTPROC               wglSwapIntervalEXT;
+
+#define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB               0x2092
+
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
+#define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
+
+#define GL_DEPTH_STENCIL_EXT                        0x84F9
+#define GL_UNSIGNED_INT_24_8_EXT                    0x84FA
+#define GL_DEPTH24_STENCIL8_EXT                     0x88F0
+#define GL_TEXTURE_STENCIL_SIZE_EXT                 0x88F1
+#define GL_BGR_EXT                                  0x80E0
+#define GL_BGRA_EXT                                 0x80E1
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT             0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT            0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT            0x83F2
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT            0x83F3
+
+
+#define GL_SAMPLER_EXTERNAL_OES                     0x8D66
+#define GL_TEXTURE_EXTERNAL_OES                     0x8D65
 
 // extensions used:
 //   GL_EXT_bgra (BGRA_EXT)
@@ -70,7 +97,7 @@ namespace Private
     /****************************************************************************/
 
 #if sConfigPlatform == sConfigPlatformWin
-#include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "Altona2/Libs/Base/GL/gl3w.h"
 namespace Private
 {
     HGLRC Glrc;
@@ -346,14 +373,35 @@ void Private::InitGL()
     format = ChoosePixelFormat(Gdc,&pfd);
     GLErr(format);
     GLErr(SetPixelFormat(Gdc,format,&pfd));
-    Glrc = wglCreateContext(Gdc);
-    GLErr(Glrc);
-    GLErr(wglMakeCurrent(Gdc,Glrc));
 
-    if(glewInit()!=GLEW_OK)
-        sFatal("glew not initialized");
-    if(!GLEW_VERSION_2_1!=0)
-        sFatal("require opengl 2.1 at least");
+    // create temp gl context
+    HGLRC tmpGlrc = wglCreateContext(Gdc);
+    GLErr(tmpGlrc);
+    GLErr(wglMakeCurrent(Gdc, tmpGlrc));
+
+    // get needed extensions
+    wglCreateContextAttribsARB = (HGLRC(WINAPI *) (HDC hDC, HGLRC hShareContext, const int *attribList)) gl3wGetProcAddress("wglCreateContextAttribsARB");
+
+    // specific opengl version
+    const int attribs[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+        WGL_CONTEXT_PROFILE_MASK_ARB,
+        /*WGL_CONTEXT_CORE_PROFILE_BIT_ARB*/ WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+        0
+    };
+
+    // create specific context and profile gl version to replace temp context
+    Glrc = wglCreateContextAttribsARB(Gdc, 0, attribs);
+    wglMakeCurrent(0, 0);
+    wglDeleteContext(tmpGlrc);
+    wglMakeCurrent(Gdc, Glrc);
+
+    // init gl3w library
+    if (gl3wInit())
+        sFatal("Failed to initialize gl3w");
+    if (!gl3wIsSupported(4, 2))
+        sFatal("OpenGL 4.2 not supported");
 
     DefaultAdapter = new sAdapter();
     DefaultScreen = 0;
@@ -363,7 +411,7 @@ void Private::InitGL()
     DefaultAdapter->Init();
 
     // enable/disable vsync
-    wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+    //wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
 
     InitGLCommon();
 }
@@ -815,25 +863,25 @@ public:
 
         InitGL();
 
-        // extensions
-
         GlVendor   = (const char *)glGetString(GL_VENDOR);
         GlRenderer = (const char *)glGetString(GL_RENDERER);
         GlVersion  = (const char *)glGetString(GL_VERSION);
         const char *ext = (const char *) glGetString(GL_EXTENSIONS);
-#if sConfigPlatform==sConfigPlatformWin
-        const char *ext2 = wglGetExtensionsStringARB(Gdc);
-#endif
         GlShaderVersion = (const char *) glGetString(GL_SHADING_LANGUAGE_VERSION);
-
 
         sLogF("gfx","GL Vendor   <%s>",GlVendor);
         sLogF("gfx","GL Renderer <%s>",GlRenderer);
         sLogF("gfx","GL Version  <%s>",GlVersion);
         sLogF("gfx","GL Shaders  <%s>",GlShaderVersion);
 
-        sString<256> buffer;
+        // extensions
+
+        /*sString<256> buffer;
         sLogF("gfx","GL Extensions:");
+
+        #if sConfigPlatform==sConfigPlatformWin
+        //const char *ext2 = wglGetExtensionsStringARB(Gdc);
+        #endif
 
         int depth = 0;
 
@@ -875,7 +923,7 @@ public:
             Private::DefaultRTDepthIsUsableInShader = true;
             sLogF("gfx","depth texture available");
         }
-#endif
+#endif*/
 
 
         int *sf = sSupportedFormats;
@@ -1512,11 +1560,6 @@ void sResource::Unmap(sContext *ctx)
 
 void sResource::UpdateBuffer(void *data,int startbyte,int bytesize)
 {
-    //sFatal("sResource::UpdateBuffer - not implemented");
-
-    if (!GLEW_VERSION_3_2 != 0)
-        sFatal("require opengl 3.2 at least");
-
     sASSERT((Para.Mode & sRU_Mask) == sRU_Update);
 
     GLboolean success;
@@ -2323,7 +2366,7 @@ void sContext::Draw(const sDrawPara &dp)
                 (const void *)uptr(vp + at->Offset + dp.VertexOffset[at->Stream]) );
             GLERR();
 #if !sGLES
-            glVertexAttribDivisorARB(i,at->Instanced && instanced);
+            glVertexAttribDivisor(i,at->Instanced && instanced);
             GLERR();
 #endif
         }

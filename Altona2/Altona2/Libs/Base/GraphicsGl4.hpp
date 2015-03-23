@@ -19,20 +19,6 @@ namespace Altona2 {
 /***                                                                      ***/
 /****************************************************************************/
 
-
-
-#if (sConfigPlatform==sConfigPlatformIOS || sConfigPlatform==sConfigPlatformOSX || sConfigPlatform==sConfigPlatformAndroid)
-enum sGraphicsLimits
-{
-    sGfxMaxTargets = 1,
-    sGfxMaxCBs = 4,
-    sGfxMaxStream = 4,
-    sGfxMaxTexture = 4,
-    sGfxMaxSampler = 4,
-    sGfxMaxVSAttrib = 4,
-    sGfxMaxUav = 1,
-};
-#else
 enum sGraphicsLimits
 {
     sGfxMaxTargets = 4,
@@ -43,7 +29,6 @@ enum sGraphicsLimits
     sGfxMaxVSAttrib = 16,
     sGfxMaxUav = 1,
 };
-#endif
 
 /****************************************************************************/
 
