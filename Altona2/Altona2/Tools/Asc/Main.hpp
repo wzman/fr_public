@@ -19,7 +19,7 @@
 
 #define APP_VERSION 0
 #define APP_REVISION 11
-#define APP_BUILD 00
+#define APP_BUILD 01
 #define APP_SUFFIX ""
 
 /****************************************************************************/
