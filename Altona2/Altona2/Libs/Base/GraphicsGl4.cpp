@@ -515,9 +515,9 @@ void Private::InitGL()
     const int attribs[] = {
         GL_CONTEXT_MAJOR_VERSION_ARB, 4,
         GL_CONTEXT_MINOR_VERSION_ARB, 4,
-/*#if sConfigDebug
-        GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
-#endif*/
+#if sConfigDebug
+        //GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
+#endif
         GL_CONTEXT_PROFILE_MASK_ARB, GL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
@@ -1344,11 +1344,11 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
             sASSERT(Para.BitsPerElement == bitsperpixel);
     }
 
-    if (Para.Mode & sRBM_Vertex || Para.Mode & sRBM_Index)
+    /*if (Para.Mode & sRBM_Vertex || Para.Mode & sRBM_Index)
     {
         glGenVertexArrays(1, &SharedHandle);
         GLERR();
-    }
+    }*/
 
     // create specialized resources
     if(Para.Mode & sRBM_Vertex)
@@ -1359,8 +1359,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
-        glBindVertexArray(SharedHandle);
-        GLERR();
+        //glBindVertexArray(SharedHandle);
+        //GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,GLName);
@@ -1370,8 +1370,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,0);
         GLERR();
-        glBindVertexArray(0);
-        GLERR();
+        //glBindVertexArray(0);
+        //GLERR();
     }
     else if(Para.Mode & sRBM_Index)
     {
@@ -1381,8 +1381,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
-        glBindVertexArray(SharedHandle);
-        GLERR();
+        //glBindVertexArray(SharedHandle);
+        //GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,GLName);
@@ -1392,8 +1392,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         GLERR();
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
         //GLERR();
-        glBindVertexArray(0);
-        GLERR();
+        //glBindVertexArray(0);
+        //GLERR();
     }    
     else if(!(Para.Mode&sRM_Texture) && Para.Mode&(sRBM_ColorTarget|sRBM_DepthTarget))
     {
@@ -2441,11 +2441,24 @@ void sContext::Draw(const sDrawPara &dp)
 
     // vertex buffer
 
-    glBindVertexArray(geo ? geo->Index->SharedHandle : 0);
+    bool firstInit = false;
+
+    if (geo->Index->SharedHandle == 0)
+    {
+        glGenVertexArrays(1, &geo->Index->SharedHandle);
+        firstInit = true;
+
+        glBindVertexArray(geo->Index->SharedHandle);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geo->Index->GLName);
+    }
+    else
+        glBindVertexArray(geo->Index->SharedHandle);
 
     int newalimit = 0;
     if(!geo)
         glBindBuffer(GL_ARRAY_BUFFER,0);
+
+    if (firstInit)
     for(int i=0;i<sGfxMaxVSAttrib;i++)
     {
         if(dp.Mtrl->AttribMap[i]>=0 && fmt->Attribs[dp.Mtrl->AttribMap[i]].Size>0)
@@ -2453,29 +2466,43 @@ void sContext::Draw(const sDrawPara &dp)
             newalimit = i+1;
             const sVertexFormatPrivate::attrib *at = &fmt->Attribs[dp.Mtrl->AttribMap[i]];
             const void *data = 0;
-            if(geo)
+            /*if(geo)
             {
                 glBindBuffer(GL_ARRAY_BUFFER,geo ? geo->Vertex[at->Stream]->GLName : 0);
                 GLERR();
-            }
-            glEnableVertexAttribArray(i);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geo->Index->GLName);
+            }*/
+
+            /*glEnableVertexAttribArray(i);
             GLERR();
             glVertexAttribPointer(i,
                 at->Size,
                 at->Type,
                 at->Normalized,
                 at->Pitch,
-                (const void *)uptr(vp + at->Offset + dp.VertexOffset[at->Stream]) );
+                (const void *)uptr(vp + at->Offset + dp.VertexOffset[at->Stream]) );*/
+
+            glEnableVertexAttribArray(i);
             GLERR();
+            glVertexAttribFormat(i, at->Size, at->Type, at->Normalized, dp.VertexOffset[at->Stream]);
+            GLERR();
+            glVertexAttribBinding(i, 0);
+            GLERR();
+            glBindVertexBuffer(i, geo->Vertex[at->Stream]->GLName, at->Offset, at->Pitch);
+            GLERR();
+            glVertexAttribBinding(i, i);
+            GLERR();
+
 #if !sGLES
             glVertexAttribDivisor(i,at->Instanced && instanced);
             GLERR();
 
-            if (geo)
+            /*if (geo)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 GLERR();
-            }
+            }*/
 #endif
         }
         else
