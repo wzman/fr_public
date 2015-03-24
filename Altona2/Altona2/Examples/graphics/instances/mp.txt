@@ -25,6 +25,12 @@ project "instances"
     config "debug_gles2_ios";
     config "optim_gles2_ios";
 
+    config "debug_gl4_win32";
+    config "optim_gl4_win32";
+
+    config "debug_gl4_linux";
+    config "optim_gl4_linux";
+
     file "main.cpp";
     file "main.hpp";
     file "mp.txt";
