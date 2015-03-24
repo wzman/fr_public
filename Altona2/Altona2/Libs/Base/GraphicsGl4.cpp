@@ -1336,16 +1336,19 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
     // get element size
 
     int bitsperpixel = sGetBitsPerPixel(Para.Format);
-    if(Para.BitsPerElement == 0) 
+    if(Para.BitsPerElement == 0)
         Para.BitsPerElement = bitsperpixel;
     else 
-        if(bitsperpixel!=0) 
-            sASSERT(Para.BitsPerElement==bitsperpixel);
+    {
+        if (bitsperpixel != 0)
+            sASSERT(Para.BitsPerElement == bitsperpixel);
+    }
 
-    glGenVertexArrays(1, &SharedHandle);
-    GLERR();
-    glBindVertexArray(SharedHandle);
-    GLERR();
+    if (Para.Mode & sRBM_Vertex || Para.Mode & sRBM_Index)
+    {
+        glGenVertexArrays(1, &SharedHandle);
+        GLERR();
+    }
 
     // create specialized resources
     if(Para.Mode & sRBM_Vertex)
@@ -1356,6 +1359,8 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
+        glBindVertexArray(SharedHandle);
+        GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,GLName);
@@ -1365,15 +1370,19 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,0);
         GLERR();
+        glBindVertexArray(0);
+        GLERR();
     }
     else if(Para.Mode & sRBM_Index)
     {
-        MainBind = sRBM_Vertex;
+        MainBind = sRBM_Index;
         TotalSize = Para.BitsPerElement/8 * Para.SizeX;
         sASSERT(Para.SizeY==0);
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
+        glBindVertexArray(SharedHandle);
+        GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,GLName);
@@ -1381,7 +1390,9 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         if(data) sASSERT(size==TotalSize);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,TotalSize,data,Usage);
         GLERR();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+        //GLERR();
+        glBindVertexArray(0);
         GLERR();
     }    
     else if(!(Para.Mode&sRM_Texture) && Para.Mode&(sRBM_ColorTarget|sRBM_DepthTarget))
@@ -1497,8 +1508,6 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         TotalSize = 0;
     }    
 
-    glBindVertexArray(0);
-    GLERR();
 }
 
 sResource::~sResource()
@@ -2461,6 +2470,12 @@ void sContext::Draw(const sDrawPara &dp)
 #if !sGLES
             glVertexAttribDivisor(i,at->Instanced && instanced);
             GLERR();
+
+            if (geo)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                GLERR();
+            }
 #endif
         }
         else
@@ -2487,8 +2502,8 @@ void sContext::Draw(const sDrawPara &dp)
         }
         else
         {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
-            GLERR();
+            //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
+            //GLERR();
             glDrawElementsInstanced(topology,ic,is,(const void *)uptr(ip + dp.IndexOffset),dp.InstanceCount);
             GLERR();
         }
@@ -2513,8 +2528,8 @@ void sContext::Draw(const sDrawPara &dp)
                 }
                 else
                 {
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo->Index->GLName);
-                    GLERR();
+                    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo->Index->GLName);
+                    //GLERR();
                     for(int i=0;i<dp.RangeCount;i++)
                     {
                         int i0 = geo->VertexOffset + dp.Ranges[i].Start;
@@ -2548,12 +2563,14 @@ void sContext::Draw(const sDrawPara &dp)
                         DrawRangeIndex[i] = (GLvoid *)uptr(dp.Ranges[i].Start*2+dp.IndexOffset);
                         DrawRangeCount[i] = dp.Ranges[i].End-dp.Ranges[i].Start;
                     }
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo->Index->GLName);
-                    GLERR();
+                    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo->Index->GLName);
+                    //GLERR();
                     GLsizei *counts = DrawRangeCount.GetData();
                     GLvoid **offsets = DrawRangeIndex.GetData();
                     glMultiDrawElements(geo->Topology,counts,is,(const GLvoid **)offsets,dp.RangeCount);
                     GLERR();
+                    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                    //GLERR();
                 }
 #endif
             }
@@ -2567,12 +2584,12 @@ void sContext::Draw(const sDrawPara &dp)
             }
             else
             {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
-                GLERR();
+                //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,geo ? geo->Index->GLName : 0);
+                //GLERR();
                 glDrawElements(topology,ic,is,(const void *)uptr(ip + dp.IndexOffset));
                 GLERR();
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                GLERR();
+                //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                //GLERR();
             }
         }
     }
