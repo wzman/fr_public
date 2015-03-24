@@ -48,7 +48,6 @@ protected:
 public:
     sResPara Para;
     uint GLName;
-    uint GLNameVAO;
     bool ExternalOES;
     bool External;
 };

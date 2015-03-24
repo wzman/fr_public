@@ -515,9 +515,9 @@ void Private::InitGL()
     const int attribs[] = {
         GL_CONTEXT_MAJOR_VERSION_ARB, 4,
         GL_CONTEXT_MINOR_VERSION_ARB, 4,
-#if sConfigDebug
+/*#if sConfigDebug
         GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
-#endif
+#endif*/
         GL_CONTEXT_PROFILE_MASK_ARB, GL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
@@ -1342,6 +1342,11 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         if(bitsperpixel!=0) 
             sASSERT(Para.BitsPerElement==bitsperpixel);
 
+    glGenVertexArrays(1, &SharedHandle);
+    GLERR();
+    glBindVertexArray(SharedHandle);
+    GLERR();
+
     // create specialized resources
     if(Para.Mode & sRBM_Vertex)
     {
@@ -1351,8 +1356,6 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         sASSERT(Para.SizeZ==0);
         sASSERT(Para.SizeA==0);
 
-        glGenVertexArrays(1, &GLNameVAO);
-        GLERR();
         glGenBuffers(1,&GLName);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,GLName);
@@ -1361,8 +1364,6 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
         glBufferData(GL_ARRAY_BUFFER,TotalSize,data,Usage);
         GLERR();
         glBindBuffer(GL_ARRAY_BUFFER,0);
-        GLERR();
-        glBindVertexArray(0);
         GLERR();
     }
     else if(Para.Mode & sRBM_Index)
@@ -1495,6 +1496,9 @@ sResource::sResource(sAdapter *adapter,const sResPara &para_,const void *data,up
     {
         TotalSize = 0;
     }    
+
+    glBindVertexArray(0);
+    GLERR();
 }
 
 sResource::~sResource()
@@ -2428,6 +2432,8 @@ void sContext::Draw(const sDrawPara &dp)
 
     // vertex buffer
 
+    glBindVertexArray(geo ? geo->Index->SharedHandle : 0);
+
     int newalimit = 0;
     if(!geo)
         glBindBuffer(GL_ARRAY_BUFFER,0);
@@ -2440,7 +2446,6 @@ void sContext::Draw(const sDrawPara &dp)
             const void *data = 0;
             if(geo)
             {
-                glBindVertexArray(geo ? geo->Vertex[at->Stream]->GLNameVAO : 0);
                 glBindBuffer(GL_ARRAY_BUFFER,geo ? geo->Vertex[at->Stream]->GLName : 0);
                 GLERR();
             }
@@ -2572,6 +2577,8 @@ void sContext::Draw(const sDrawPara &dp)
         }
     }
     // 
+
+    glBindVertexArray(0);
 }
 
 /****************************************************************************/
