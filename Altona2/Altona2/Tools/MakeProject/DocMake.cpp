@@ -36,7 +36,7 @@ sBool Document::OutputMake(mProject *pro)
     sln.Print("### header\n");
     sln.Print("\n");
     sln.Print("ifndef CONFIG\n");
-    sln.PrintF("CONFIG = %s\n",pro->Configs[0]->Name);
+    sln.PrintF("CONFIG = %s\n", pro->Configs.GetCount() > 0 ? pro->Configs[0]->Name : "");
     sln.Print("endif\n");
     sln.Print("\n");
     sln.Print("objdir = $(CONFIG)\n");
