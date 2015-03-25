@@ -18,8 +18,8 @@ library "Base"
     file "SystemPrivate.hpp";
     file "Types.?pp";
     file "Types2.?pp";
-    file "Wintab.cpp";
-    file "Wintab.h";
+    file "Wintab.cpp" options "!*Win32" { exclude; };
+    file "Wintab.h" options "!*Win32" { exclude; };
 //  file "Obsolete.hpp";
   
     folder "System"

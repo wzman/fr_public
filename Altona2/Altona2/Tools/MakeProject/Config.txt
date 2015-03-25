@@ -615,7 +615,7 @@ options optim
 
     group make ""
     {
-        item "cflags" += " -O3 -DsDEFINE_MEMDEBUG sDEFINE_O2";
+        item "cflags" += " -O3 -DsDEFINE_MEMDEBUG -DsDEFINE_O2";
     }
 
     group ndk ""

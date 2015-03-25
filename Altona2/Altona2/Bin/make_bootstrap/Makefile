@@ -15,6 +15,7 @@ objlib += $(root)/Altona2/Libs/Base/$(objdir)/Types.o
 objlib += $(root)/Altona2/Libs/Base/$(objdir)/Math.o
 objlib += $(root)/Altona2/Libs/Util/$(objdir)/Scanner.o
 objlib += $(root)/Altona2/Libs/Base/$(objdir)/Serialize.o
+objlib += $(root)/Altona2/Libs/Base/$(objdir)/Perfmon.o
 
 objincbin = $(root)/Altona2/Tools/Incbin/Bootstrap/Main.o
 

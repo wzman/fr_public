@@ -327,6 +327,8 @@ void sDebugMemory(bool enable);
 
 }
 
+#if sConfigDebugMem
+
 inline void *operator new  (size_t size)throw() { return Altona2::sAllocMem_(size,16,0); }
 inline void *operator new[](size_t size)throw() { return Altona2::sAllocMem_(size,16,0); }
 inline void *operator new  (size_t size,int flags)throw() { return Altona2::sAllocMem_(size,16,flags); }
@@ -339,6 +341,8 @@ inline void operator delete  (void* p,void* q)throw() { }
 inline void operator delete[](void* p,void* q)throw() { }
 #define __PLACEMENT_NEW_INLINE
 #define __PLACEMENT_VEC_NEW_INLINE
+
+#endif
 
 namespace Altona2 {
 
