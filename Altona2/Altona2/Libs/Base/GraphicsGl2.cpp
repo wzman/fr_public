@@ -71,6 +71,7 @@ namespace Private
 
 #if sConfigPlatform == sConfigPlatformWin
 #include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "wglew.h"
 namespace Private
 {
     HGLRC Glrc;
