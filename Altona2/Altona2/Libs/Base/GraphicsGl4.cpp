@@ -11,41 +11,6 @@
 
 #if sConfigRender==sConfigRenderGL4
 
-// needed extensions
-
-#if sConfigPlatform==sConfigPlatformWin
-
-typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int *attribList);
-typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
-
-PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
-PFNWGLSWAPINTERVALEXTPROC               wglSwapIntervalEXT;
-
-#elif sConfigPlatform==sConfigPlatformLinux
-
-#endif
-
-#define GL_CONTEXT_MAJOR_VERSION_ARB                0x2091
-#define GL_CONTEXT_MINOR_VERSION_ARB                0x2092
-#define GL_CONTEXT_LAYER_PLANE_ARB                  0x2093
-#define GL_CONTEXT_FLAGS_ARB                        0x2094
-#define GL_CONTEXT_CORE_PROFILE_BIT_ARB             0x0001
-#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB    0x0002
-#define GL_CONTEXT_PROFILE_MASK_ARB                 0x9126
-#define GL_CONTEXT_DEBUG_BIT_ARB                    0x0001
-#define GL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB       0x0002
-
-#define GL_DEPTH_STENCIL_EXT                        0x84F9
-#define GL_UNSIGNED_INT_24_8_EXT                    0x84FA
-#define GL_DEPTH24_STENCIL8_EXT                     0x88F0
-#define GL_TEXTURE_STENCIL_SIZE_EXT                 0x88F1
-#define GL_BGR_EXT                                  0x80E0
-#define GL_BGRA_EXT                                 0x80E1
-#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT             0x83F0
-#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT            0x83F1
-#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT            0x83F2
-#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT            0x83F3
-
 #define GL_SAMPLER_EXTERNAL_OES                     0x8D66
 #define GL_TEXTURE_EXTERNAL_OES                     0x8D65
 
@@ -105,7 +70,8 @@ namespace Private
     /****************************************************************************/
 
 #if sConfigPlatform == sConfigPlatformWin
-#include "Altona2/Libs/Base/GL/gl3w.h"
+#include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "wglew.h"
 namespace Private
 {
     HGLRC Glrc;
@@ -484,36 +450,19 @@ void Private::InitGL()
     GLErr(tmpGlrc);
     GLErr(wglMakeCurrent(Gdc, tmpGlrc));
 
-    // init gl3w library
-    if (gl3wInit())
-        sFatal("Failed to initialize gl3w");
-    if (!gl3wIsSupported(4, 4))
-        sFatal("OpenGL 4.4 not supported");
-
-    // get needed extensions
-    wglCreateContextAttribsARB = (HGLRC(WINAPI *) (HDC hDC, HGLRC hShareContext, const int *attribList)) gl3wGetProcAddress("wglCreateContextAttribsARB");
-    wglSwapIntervalEXT = (BOOL(WINAPI *) (int interval)) gl3wGetProcAddress("wglSwapIntervalEXT");
-    if (!wglCreateContextAttribsARB || !wglSwapIntervalEXT)
-        sFatal("Required GL extensions not found");
-
-    // set specific opengl version and profile
-
-    // for forward compatibility mode :
-    //WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-    // for Compatibility profile :
-    //WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-    // for Core profile :
-    //WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-    // for Debug and enable glDebugMessageCallback
-    //WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
+    // init glew
+    if(glewInit() != GLEW_OK)
+        sFatal("glew not initialized");
+    if (!GLEW_VERSION_4_4 != 0)
+        sFatal("require opengl 4.4 at least");
 
     const int attribs[] = {
-        GL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        GL_CONTEXT_MINOR_VERSION_ARB, 4,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 4,
 #if sConfigDebug
         //GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
 #endif
-        GL_CONTEXT_PROFILE_MASK_ARB, GL_CONTEXT_CORE_PROFILE_BIT_ARB,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
 
