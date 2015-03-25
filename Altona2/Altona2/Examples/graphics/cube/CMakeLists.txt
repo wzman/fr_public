@@ -30,21 +30,3 @@ endforeach()
 
 target_link_libraries (${PROJECT_NAME} LINK_PUBLIC Base)
 target_link_libraries (${PROJECT_NAME} LINK_PUBLIC Util)
-
-# link system libraries
-
-if( ${config_os} MATCHES "Linux" )
-    # -lrt -lX11 -lGL -lGLU -lXxf86vm
-    find_package(OpenGL REQUIRED)
-    find_package(X11 REQUIRED)
-    find_package(GLUT REQUIRED)
-    include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS}  )
-    target_link_libraries(${PROJECT_NAME} LINK_PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
-else()
-    message(FATAL_ERROR "Link system libraries not defined on ${CMAKE_SYSTEM_NAME}...")
-    # implement me
-endif()
-
-
-
-

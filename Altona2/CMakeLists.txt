@@ -24,9 +24,9 @@ endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 
 if( ${config_os} MATCHES "Linux" )
     message(STATUS "Automatic setup for Linux")
-    set(renderer gl2)
+    set(renderer gl4)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    add_definitions(-DsDEFINE_LINUX -DsDEFINE_GL2)
+    add_definitions(-DsDEFINE_LINUX -DsDEFINE_GL4)
 else()
     message(FATAL_ERROR "Automatic setup not defined on ${CMAKE_SYSTEM_NAME}...")
     # implement me

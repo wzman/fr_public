@@ -24,7 +24,7 @@ Types.cpp
 )
 
 if ( "${renderer}" STREQUAL "gl4" )
-    set(BaseSrc ${BaseSrc} gl3w.c GL/gl3w.h GL/glcorearb.h GraphicsGl4.cpp )
+    set(BaseSrc ${BaseSrc} gl3w.c GL/gl3w.h GL/glcorearb.h GraphicsGl4.cpp GraphicsGlew.cpp)
 elseif( "${renderer}" STREQUAL "gl2" )
     set(BaseSrc ${BaseSrc} GraphicsGl2.cpp GraphicsGlew.cpp)
 endif()
@@ -81,3 +81,19 @@ endforeach()
 # when other libraries or executables link to Base
 
 target_include_directories (Base PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+
+
+# link system libraries
+
+if( ${config_os} MATCHES "Linux" )
+    # -lrt -lX11 -lGL -lGLU -lXxf86vm
+    find_package(OpenGL REQUIRED)
+    find_package(X11 REQUIRED)
+    find_package(GLUT REQUIRED)
+    include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS}  )
+    target_link_libraries(${PROJECT_NAME} LINK_PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
+else()
+    message(FATAL_ERROR "Link system libraries not defined on ${CMAKE_SYSTEM_NAME}...")
+    # implement me
+endif()
