@@ -1,3 +1,23 @@
+/****************************************************************************/
+/***                                                                      ***/
+/***   (C) 2012-2014 Dierk Ohlerich et al., all rights reserved.          ***/
+/***                                                                      ***/
+/***   Released under BSD 2 clause license, see LICENSE.TXT               ***/
+/***                                                                      ***/
+/****************************************************************************/
+
+#ifndef FILE_ALTONA2_LIBS_BASE_GRAPHICS_GLEW_HPP
+#define FILE_ALTONA2_LIBS_BASE_GRAPHICS_GLEW_HPP
+
+
+#define GLEW_STATIC 
+
+/****************************************************************************/
+/***                                                                      ***/
+/***                                                                      ***/
+/***                                                                      ***/
+/****************************************************************************/
+
 /*
 ** The OpenGL Extension Wrangler Library
 ** Copyright (C) 2008-2015, Nigel Stewart <nigels[]users sourceforge net>
@@ -19365,3 +19385,16 @@ GLEWAPI const GLubyte * GLEWAPIENTRY glewGetString (GLenum name);
 /* #undef GLEWAPI */
 
 #endif /* __glew_h__ */
+
+
+/****************************************************************************/
+/***                                                                      ***/
+/***                                                                      ***/
+/***                                                                      ***/
+/****************************************************************************/
+
+
+
+/****************************************************************************/
+
+#endif  // FILE_ALTONA2_LIBS_BASE_GRAPHICS_GLEW_HPP
