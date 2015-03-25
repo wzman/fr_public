@@ -2,8 +2,7 @@
 
 project (Base)
 
-add_library ( ${PROJECT_NAME}
-
+set(BaseSrc
 Containers.cpp
 Graphics.cpp
 Math.cpp
@@ -16,20 +15,47 @@ SystemPrivate.hpp
 #Types2.cpp
 #Wintab.cpp
 #Wintab.h
-
 SystemLinux.cpp
 SystemPosix.cpp
-
-GraphicsGl2.cpp
-GraphicsGlew.cpp
-
 Machine.cpp
 #Base.hpp
-
-
 Types2.hpp
 Types.cpp
 )
+
+if ( "${renderer}" STREQUAL "gl4" )
+    set(BaseSrc ${BaseSrc} gl3w.c GL/gl3w.h GL/glcorearb.h GraphicsGl4.cpp )
+elseif( "${renderer}" STREQUAL "gl2" )
+    set(BaseSrc ${BaseSrc} GraphicsGl2.cpp GraphicsGlew.cpp)
+endif()
+
+add_library ( ${PROJECT_NAME} ${BaseSrc} )
+#Containers.cpp
+#Graphics.cpp
+#Math.cpp
+#Perfmon.cpp
+#Serialize.cpp
+#String.cpp
+#System.cpp
+#SystemPrivate.hpp
+##Types.cpp
+##Types2.cpp
+##Wintab.cpp
+##Wintab.h
+#
+#SystemLinux.cpp
+#SystemPosix.cpp
+#
+#GraphicsGl2.cpp
+#GraphicsGlew.cpp
+#
+#Machine.cpp
+##Base.hpp
+#
+#
+#Types2.hpp
+#Types.cpp
+#)
 
 # build .asc files in project directory, add dependencies and link
 
