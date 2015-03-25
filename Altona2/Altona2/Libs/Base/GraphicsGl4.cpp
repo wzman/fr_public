@@ -23,12 +23,6 @@ PFNWGLSWAPINTERVALEXTPROC               wglSwapIntervalEXT;
 
 #elif sConfigPlatform==sConfigPlatformLinux
 
-typedef GLXContext ( * PFNGLXCREATECONTEXTATTRIBSARBPROC) (Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
-typedef void ( * PFNGLXSWAPINTERVALEXTPROC) (Display* dpy, GLXDrawable drawable, int interval);
-
-PFNGLXCREATECONTEXTATTRIBSARBPROC       glxCreateContextAttribsARB
-PFNGLXSWAPINTERVALEXTPROC               glwSwapIntervalEXT;
-
 #endif
 
 #define GL_CONTEXT_MAJOR_VERSION_ARB                0x2091
@@ -129,6 +123,7 @@ namespace Private
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "glxew.h"
 
 namespace Private
 {
@@ -279,7 +274,7 @@ static const char *GetGLErrMsg(uint err)
     return em;    
 }
 
-static void GLError(uint err,const char *file,int line,char *function)
+static void GLError(uint err,const char *file,int line, const char *function)
 {
     if(err!=0)
     {

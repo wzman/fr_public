@@ -88,6 +88,7 @@ namespace Private
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "glxew.h"
 
 namespace Private
 {
