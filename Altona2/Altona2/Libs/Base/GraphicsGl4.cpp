@@ -95,7 +95,7 @@ namespace Private
 {
     Display                 *dpy;
     Window                  root;
-    GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+    //GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
     XVisualInfo             *vi;
     Colormap                cmap;
     XSetWindowAttributes    swa;
@@ -103,6 +103,18 @@ namespace Private
     GLXContext              glc;
     XWindowAttributes       gwa;
     XEvent                  xev;
+
+    static GLint fbAttribs[] =
+    {
+        GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+        GLX_X_RENDERABLE,  True,
+        GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+        GLX_DOUBLEBUFFER,  True,
+        GLX_RED_SIZE, 8,
+        GLX_BLUE_SIZE, 8,
+        GLX_GREEN_SIZE, 8,
+        None
+    };
 }
 
 #endif
@@ -638,35 +650,90 @@ const static uint XKeys[][2] =
 
 void Private::InitGL()
 {
+    // init needed pre-glew glx pointers
+    glXChooseFBConfig = (GLXFBConfig*(*)(Display *dpy, int screen, const int *attrib_list, int *nelements))glXGetProcAddressARB((GLubyte*)"glXChooseFBConfig");
+    glXGetVisualFromFBConfig = (XVisualInfo*(*)(Display *dpy, GLXFBConfig config))glXGetProcAddressARB((GLubyte*)"glXGetVisualFromFBConfig");
+    //glXGetFBConfigAttrib = (int(*)(Display *dpy, GLXFBConfig config, int attribute, int* value))glXGetProcAddressARB((GLubyte*)"glXGetFBConfigAttrib");
+    //glXCreateContextAttribsARB = (GLXContext(*)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list))glXGetProcAddressARB((GLubyte*)"glXCreateContextAttribsARB");
+
+    // get X display
     dpy = XOpenDisplay(NULL);
     if(!dpy) sFatal("cannot connect to X server");
     root = DefaultRootWindow(dpy);
-    vi = glXChooseVisual(dpy, 0, att);
+
+    // get glx version
+    sInt glxMinorVer, glxMajorVer;
+    glXQueryVersion(dpy, &glxMajorVer, &glxMinorVer);
+    sPrintF("Supported GLX version - %d.%d\n", glxMajorVer, glxMinorVer);
+    if(glxMajorVer == 1 && glxMinorVer < 2)
+    {
+        XCloseDisplay(dpy);
+        sFatal("ERROR: GLX 1.2 or greater is necessary");
+    }
+
+    // get new fb config from fbAttribs
+    int numConfigs = 0;
+    GLXFBConfig *fbConfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), fbAttribs, &numConfigs);
+    vi = glXGetVisualFromFBConfig(dpy, fbConfigs[0]);
     if(!vi) sFatal("no appropriate visual found");
-    cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+
+    // create an X window
+    cmap = XCreateColormap(dpy, RootWindow(dpy, vi->screen), vi->visual, AllocNone);
+    swa.event_mask = ExposureMask | VisibilityChangeMask | KeyPressMask | PointerMotionMask | StructureNotifyMask ;
+    //swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask | PointerMotionMask;
+    swa.border_pixel = 0;
+    swa.bit_gravity = StaticGravity;
     swa.colormap = cmap;
-    swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask | PointerMotionMask;
-    win = XCreateWindow(dpy, root, 0, 0, CurrentMode.SizeX, CurrentMode.SizeY, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+    GLint winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
+    win = XCreateWindow(dpy, root, 20, 20, CurrentMode.SizeX, CurrentMode.SizeY, 0, vi->depth, InputOutput, vi->visual, winmask, &swa);
     XMapWindow(dpy, win);
     XStoreName(dpy, win, "altona2");
-    glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
-    glXMakeCurrent(dpy, win, glc);
 
+    // set attributes for a 4.4 core profile with forward compatibility
+    // add debug context if flag sSM_Debug is set
+    const int context_attribs[] = {
+        GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
+        GLX_CONTEXT_MINOR_VERSION_ARB, 4,
+        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB | (CurrentMode.Flags & sSM_Debug) ? GLX_CONTEXT_DEBUG_BIT_ARB : 0,
+        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+        0
+    };
+
+    // create the gl context
+    // glXCreateContextAttribsARB here seems doesn't work without gl context on some system, or bad init !? (so use a dummy context, for now)
+    //glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
+
+    // create a dummy opengl context
+    GLXContext tmpglc = glXCreateContext(dpy, vi, NULL, True);
+    glXMakeCurrent(dpy, win, tmpglc);
+
+    // now we have a gl context, init glew
     if(glewInit()!=GLEW_OK)
         sFatal("glew not initialized");
-    if(!GLEW_VERSION_2_1!=0)
-        sFatal("require opengl 2.1 at least");
+    if(!GLEW_VERSION_4_4!=0)
+        sFatal("require opengl 4.4 at least");
 
+    // create the real context to replace the dummy context
+    glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
+    glXMakeCurrent(dpy, 0, 0);
+    glXDestroyContext(dpy, tmpglc);
+    glXMakeCurrent(dpy, win, glc);
+
+    // set vsync on or off
+    GLXDrawable drawable = glXGetCurrentDrawable();
+    glXSwapIntervalEXT(dpy, drawable, (CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+
+    // free unused ressources
+    XFree(vi);
+    XFree(fbConfigs);
+
+    // init Altona adpater
     DefaultAdapter = new sAdapter();
     DefaultScreen = 0;
     DefaultContext = new sContext();
     DefaultAdapter->ImmediateContext = DefaultContext;
     DefaultContext->Adapter = DefaultAdapter;
     DefaultAdapter->Init();
-
-    // set vsync on or off
-    GLXDrawable drawable = glXGetCurrentDrawable();
-    glXSwapIntervalEXT(dpy, drawable, (CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
 
     InitGLCommon();
 }
