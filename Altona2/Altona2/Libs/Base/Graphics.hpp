@@ -57,7 +57,7 @@ enum sScreenModeFlags             // screenmode flags
     sSM_DepthRead       = 0x0800,   // allow read access to depth buffer. might require some magic.
     sSM_Headless        = 0x0040,   // start up directx-device without actual window
     sSM_PreserveFpuDx9  = 0x0080,   // DX9: do not reduce FPU precision for the whole process...
-    sSM_Debug           = 0x0100,   // DX11: enable debug layer
+    sSM_Debug           = 0x0100,   // DX11: enable debug layer, GL4: enable debug context and error callback
 };
 
 enum WindowControlEnum

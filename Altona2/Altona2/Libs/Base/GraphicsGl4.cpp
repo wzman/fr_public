@@ -456,12 +456,12 @@ void Private::InitGL()
     if (!GLEW_VERSION_4_4 != 0)
         sFatal("require opengl 4.4 at least");
 
+    // set attributes for a 4.4 core profile with forward compatibility
+    // add debug context if flag sSM_Debug is set
     const int attribs[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
         WGL_CONTEXT_MINOR_VERSION_ARB, 4,
-#if sConfigDebug
-        //GL_CONTEXT_FLAGS_ARB, GL_CONTEXT_DEBUG_BIT_ARB,
-#endif
+        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB | (CurrentMode.Flags & sSM_Debug) ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,        
         WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
@@ -484,12 +484,13 @@ void Private::InitGL()
     // enable/disable vsync
     wglSwapIntervalEXT((CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
 
-#if sConfigDebug
-    // set debug message callback
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback((Altona2::GLDEBUGPROC)callbackDebugMsgFunction, nullptr);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
-#endif
+    // set debug message callback if sSM_Debug
+    if(CurrentMode.Flags & sSM_Debug)
+    {
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback((Altona2::GLDEBUGPROC)callbackDebugMsgFunction, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
+    }
 
     InitGLCommon();
 }
