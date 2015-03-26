@@ -263,7 +263,6 @@ static void GLError(uint err,const char *file,int line, const char *function)
 
 /****************************************************************************/
 
-#if sConfigDebug
 void APIENTRY callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     GLenum severity, GLsizei length, const GLchar * msg, const void * param)
 {
@@ -352,8 +351,6 @@ void APIENTRY callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM || severity == GL_DEBUG_SEVERITY_LOW)
         sFatal("GL_DEBUG_SEVERITY_HIGH");
 }
-#endif
-
 
 /****************************************************************************/
 /***                                                                      ***/
