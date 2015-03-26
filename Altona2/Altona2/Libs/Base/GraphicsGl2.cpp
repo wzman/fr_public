@@ -1522,7 +1522,7 @@ void sResource::UpdateBuffer(void *data,int startbyte,int bytesize)
     sASSERT((Para.Mode & sRU_Mask) == sRU_Update);
 
     GLboolean success;
-    static GLsync fence;
+    static GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
     // Bind buffer and map buffer
 
@@ -1551,7 +1551,7 @@ void sResource::UpdateBuffer(void *data,int startbyte,int bytesize)
     success = glUnmapBuffer(GL_ARRAY_BUFFER);
 
     // Create a fence that the next frame will wait for.
-    fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    //fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
 void sResource::UpdateTexture(void *data,int miplevel,int arrayindex)

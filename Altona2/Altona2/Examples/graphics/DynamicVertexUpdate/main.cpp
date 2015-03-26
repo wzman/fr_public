@@ -19,7 +19,7 @@ using namespace Altona2;
 
 void Altona2::Main()
 {
-  sRunApp(new App,sScreenMode(sSM_Fullscreen*0,"dynamic vertices, using update",1280,720));
+    sRunApp(new App, sScreenMode(sSM_NoVSync|sSM_Fullscreen * 0, "dynamic vertices, using update", 1280, 720));
 }
 
 /****************************************************************************/
