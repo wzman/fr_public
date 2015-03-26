@@ -263,7 +263,7 @@ static void GLError(uint err,const char *file,int line, const char *function)
 
 /****************************************************************************/
 
-void APIENTRY callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
+void callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     GLenum severity, GLsizei length, const GLchar * msg, const void * param)
 {
     sPrintF("---------------------sGLDebugCallback-start--------------------\n");
