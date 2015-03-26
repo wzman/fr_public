@@ -14,7 +14,7 @@ library "Util"
     file "UtilShaders.asc";
     file nonew "UtilShaders.hpp";
     file "Config.?pp";
-    file "Compression.?pp";
+//  file "Compression.?pp";
     file "IconManager.?pp";
 
     file "StbImage.c";
