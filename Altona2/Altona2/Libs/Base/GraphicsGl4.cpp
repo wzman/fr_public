@@ -2081,6 +2081,7 @@ sSamplerState::sSamplerState(sAdapter *adapter,const sSamplerStatePara &para,con
         GLMinFilterNoMipmap = filtminnm[para.Flags&1];
         GLMagFilter = (para.Flags&2) ? GL_LINEAR : GL_NEAREST;
     }
+    GLMaxLevel = 1000;
 }
 
 sSamplerState::~sSamplerState()
@@ -2362,12 +2363,10 @@ void sContext::Draw(const sDrawPara &dp)
             else
                 glBindTexture(GL_TEXTURE_2D,tex->GLName);
             GLERR();
+
+            if(!geo->Index->SharedHandle)
             if(sam)
             {
-#if sConfigPlatform!=sConfigPlatformAndroid
-                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,sMin(sam->GLMaxLevel,tex->Para.Mipmaps-1));
-                GLERR();
-#endif
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,tex->Para.Mipmaps!=1 ? sam->GLMinFilter : sam->GLMinFilterNoMipmap);
                 GLERR();
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,sam->GLMagFilter);
@@ -2375,6 +2374,10 @@ void sContext::Draw(const sDrawPara &dp)
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,sam->GLWrapS);
                 GLERR();
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,sam->GLWrapT);
+                GLERR();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+                GLERR();
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,sMin(sam->GLMaxLevel,tex->Para.Mipmaps-1));
                 GLERR();
             }
         }
