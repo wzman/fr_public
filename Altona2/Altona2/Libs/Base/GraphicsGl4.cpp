@@ -115,6 +115,8 @@ namespace Private
         GLX_GREEN_SIZE, 8,
         None
     };
+
+    Atom wmDeleteMessage;   // use to intercept WM_DELETE_WINDOW when using close button window
 }
 
 #endif
@@ -715,7 +717,7 @@ void Private::InitGL()
 
     // create the real context to replace the dummy context
     glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
-    glXMakeCurrent(dpy, 0, 0);
+    glXMakeCurrent(dpy, None, NULL);
     glXDestroyContext(dpy, tmpglc);
     glXMakeCurrent(dpy, win, glc);
 
@@ -771,6 +773,11 @@ void XMainLoop()
             {
             case Expose:
                 XRender();
+                break;
+
+            case ClientMessage:
+                if (xev.xclient.data.l[0] == wmDeleteMessage)
+                    ExitFlag = true;
                 break;
 
             case ConfigureNotify:
@@ -1095,6 +1102,9 @@ public:
 		}
 
         RestartFlag = 1;
+
+        wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+        XSetWMProtocols(dpy, win, &wmDeleteMessage, 1);
     }
     void Exit()
     {
