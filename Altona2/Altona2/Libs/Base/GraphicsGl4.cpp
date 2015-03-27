@@ -1103,8 +1103,11 @@ public:
 
         RestartFlag = 1;
 
+#if sConfigPlatform==sConfigPlatformLinux
         wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
         XSetWMProtocols(dpy, win, &wmDeleteMessage, 1);
+#endif
+
     }
     void Exit()
     {
