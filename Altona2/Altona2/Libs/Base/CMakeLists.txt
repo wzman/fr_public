@@ -21,13 +21,12 @@ Machine.cpp
 #Base.hpp
 Types2.hpp
 Types.cpp
-GraphicsGlew.cpp
 )
 
 if ( "${renderer}" STREQUAL "gl4" )
-    set(BaseSrc ${BaseSrc} GraphicsGl4.cpp)
+    set(BaseSrc ${BaseSrc} GraphicsGl4.cpp GraphicsGlewCore.cpp)
 elseif( "${renderer}" STREQUAL "gl2" )
-    set(BaseSrc ${BaseSrc} GraphicsGl2.cpp)
+    set(BaseSrc ${BaseSrc} GraphicsGl2.cpp GraphicsGlew.cpp)
 endif()
 
 add_library ( ${PROJECT_NAME} ${BaseSrc} )

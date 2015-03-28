@@ -88,7 +88,7 @@ namespace Private
 #if sConfigPlatform == sConfigPlatformLinux
 #include <X11/X.h>
 #include <X11/Xlib.h>
-#include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "Altona2/Libs/Base/GraphicsGlewCore.hpp"
 #include "glxew.h"
 
 namespace Private
@@ -656,7 +656,7 @@ void Private::InitGL()
     glXChooseFBConfig = (GLXFBConfig*(*)(Display *dpy, int screen, const int *attrib_list, int *nelements))glXGetProcAddressARB((GLubyte*)"glXChooseFBConfig");
     glXGetVisualFromFBConfig = (XVisualInfo*(*)(Display *dpy, GLXFBConfig config))glXGetProcAddressARB((GLubyte*)"glXGetVisualFromFBConfig");
     //glXGetFBConfigAttrib = (int(*)(Display *dpy, GLXFBConfig config, int attribute, int* value))glXGetProcAddressARB((GLubyte*)"glXGetFBConfigAttrib");
-    //glXCreateContextAttribsARB = (GLXContext(*)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list))glXGetProcAddressARB((GLubyte*)"glXCreateContextAttribsARB");
+    glXCreateContextAttribsARB = (GLXContext(*)(Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list))glXGetProcAddressARB((GLubyte*)"glXCreateContextAttribsARB");
 
     // get X display
     dpy = XOpenDisplay(NULL);
@@ -666,7 +666,7 @@ void Private::InitGL()
     // get glx version
     sInt glxMinorVer, glxMajorVer;
     glXQueryVersion(dpy, &glxMajorVer, &glxMinorVer);
-    sPrintF("Supported GLX version - %d.%d\n", glxMajorVer, glxMinorVer);
+    sLogF("gfx", "Supported GLX version : %d.%d\n", glxMajorVer, glxMinorVer);
     if(glxMajorVer == 1 && glxMinorVer < 2)
     {
         XCloseDisplay(dpy);
@@ -702,24 +702,27 @@ void Private::InitGL()
     };
 
     // create the gl context
-    // glXCreateContextAttribsARB here seems doesn't work without gl context on some system, or bad init !? (so use a dummy context, for now)
-    //glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
+    glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
+    glXMakeCurrent(dpy, win, glc);
 
     // create a dummy opengl context
-    GLXContext tmpglc = glXCreateContext(dpy, vi, NULL, True);
-    glXMakeCurrent(dpy, win, tmpglc);
+    /*GLXContext tmpglc = glXCreateContext(dpy, vi, NULL, True);
+    glXMakeCurrent(dpy, win, tmpglc);*/
 
     // now we have a gl context, init glew
+    //glewExperimental=GL_TRUE;
     if(glewInit()!=GLEW_OK)
         sFatal("glew not initialized");
     if(!GLEW_VERSION_4_4!=0)
         sFatal("require opengl 4.4 at least");
 
+    GLERR(); // if error here, there is a problem with glew and core profile
+
     // create the real context to replace the dummy context
-    glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
+    /*glc = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, True, context_attribs);
     glXMakeCurrent(dpy, None, NULL);
     glXDestroyContext(dpy, tmpglc);
-    glXMakeCurrent(dpy, win, glc);
+    glXMakeCurrent(dpy, win, glc);*/
 
     // set vsync on or off
     GLXDrawable drawable = glXGetCurrentDrawable();
