@@ -253,7 +253,7 @@ extern "C" { void Android_DebugBreak(); };
 
 inline void sDebugBreak() { Android_DebugBreak(); }
 #else
-inline void sDebugBreak() {  }
+inline void sDebugBreak() {  __builtin_trap(); }
 #endif
 #define sALIGNED(type, name, al)  type name __attribute__ ((aligned (al)))
 
