@@ -278,7 +278,7 @@ static void GLError(uint err,const char *file,int line, const char *function)
 /****************************************************************************/
 
 void
-#ifdef sConfigPlatform == sConfigPlatformWin
+#if sConfigPlatform == sConfigPlatformWin
 WINAPI
 #endif
 callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
