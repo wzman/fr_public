@@ -37,10 +37,11 @@ library "Base"
     {
         file "GraphicsDx9.?pp" options "!*Dx9*" { exclude; };
         file "GraphicsDx11.?pp" options "!*Dx11*" { exclude; };
-        file "GraphicsGl2.?pp" options "!*Gl*" { exclude; };
-        file "GraphicsGlew.?pp" options "!*Gl*" { exclude; };
+        file "GraphicsGl2.?pp" options "!*Gl2*" { exclude; };
+        file "GraphicsGlew.?pp" options "!*Gl2*" { exclude; };
         file "GraphicsNull.?pp" options "!*Null*" { exclude; };
         file "DxShaderCompiler.?pp" options "!*Win32" { exclude; };
-        file "GraphicsGl4.?pp" options "!*Gl*" { exclude; };
+        file "GraphicsGl4.?pp" options "!*Gl4*" { exclude; };
+        file "GraphicsGlewCore.?pp" options "!*Gl4*" { exclude; };
     }
 }
