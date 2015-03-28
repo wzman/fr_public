@@ -70,7 +70,7 @@ namespace Private
     /****************************************************************************/
 
 #if sConfigPlatform == sConfigPlatformWin
-#include "Altona2/Libs/Base/GraphicsGlew.hpp"
+#include "Altona2/Libs/Base/GraphicsGlewCore.hpp"
 #include "wglew.h"
 namespace Private
 {
@@ -277,7 +277,11 @@ static void GLError(uint err,const char *file,int line, const char *function)
 
 /****************************************************************************/
 
-void callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
+void
+#ifdef sConfigPlatform == sConfigPlatformWin
+WINAPI
+#endif
+callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     GLenum severity, GLsizei length, const GLchar * msg, const void * param)
 {
     sString<64> sourceStr;
@@ -482,6 +486,12 @@ void Private::InitGL()
     wglMakeCurrent(0, 0);
     wglDeleteContext(tmpGlrc);
     wglMakeCurrent(Gdc, Glrc);
+
+    // init glew
+    if (glewInit() != GLEW_OK)
+        sFatal("glew not initialized");
+    if (!GLEW_VERSION_4_4 != 0)
+        sFatal("require opengl 4.4 at least");
 
     DefaultAdapter = new sAdapter();
     DefaultScreen = 0;
