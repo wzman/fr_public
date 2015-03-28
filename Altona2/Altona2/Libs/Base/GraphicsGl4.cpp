@@ -280,7 +280,6 @@ static void GLError(uint err,const char *file,int line, const char *function)
 void callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     GLenum severity, GLsizei length, const GLchar * msg, const void * param)
 {
-    sPrintF("---------------------sGLDebugCallback-start--------------------\n");
     sString<64> sourceStr;
     switch (source)
     {
@@ -358,8 +357,7 @@ void callbackDebugMsgFunction(GLenum source, GLenum type, GLuint id,
     default:
         sevStr = "UNK";
     }
-    sPrintF("%s:%s[%s](%d): %s\n", sourceStr, typeStr, sevStr, id, msg);
-    sPrintF("---------------------sGLDebugCallback-end--------------------\n");
+    sLogF("GL-DEBUG", "%s:%s[%s](%d): %s\n", sourceStr, typeStr, sevStr, id, msg);
 
     // stop for backtrace debug
     if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM || severity == GL_DEBUG_SEVERITY_LOW)
@@ -727,6 +725,14 @@ void Private::InitGL()
     // set vsync on or off
     GLXDrawable drawable = glXGetCurrentDrawable();
     glXSwapIntervalEXT(dpy, drawable, (CurrentMode.Flags & sSM_NoVSync) ? 0 : 1);
+
+    // set debug message callback if sSM_Debug
+    if(CurrentMode.Flags & sSM_Debug)
+    {
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback((Altona2::GLDEBUGPROC)callbackDebugMsgFunction, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
+    }
 
     // free unused ressources
     XFree(vi);
@@ -2474,17 +2480,26 @@ void sContext::Draw(const sDrawPara &dp)
     if (geo->Index->SharedHandle == 0)
     {
         glGenVertexArrays(1, &geo->Index->SharedHandle);
+        GLERR();
         firstInit = true;
 
         glBindVertexArray(geo->Index->SharedHandle);
+        GLERR();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geo->Index->GLName);
+        GLERR();
     }
     else
+    {
         glBindVertexArray(geo->Index->SharedHandle);
+        GLERR();
+    }
 
     int newalimit = 0;
     if(!geo)
+    {
         glBindBuffer(GL_ARRAY_BUFFER,0);
+        GLERR();
+    }
 
     if (firstInit)
     for(int i=0;i<sGfxMaxVSAttrib;i++)
