@@ -16,6 +16,9 @@ project "benchmark"
     config "debug_gl2_win32";
     config "optim_gl2_win32";
 
+    config "debug_gl4_win32";
+    config "optim_gl4_win32";
+
     config "debug_gl2_linux";
     config "optim_gl2_linux";
 
