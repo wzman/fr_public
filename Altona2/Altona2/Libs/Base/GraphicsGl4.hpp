@@ -45,11 +45,14 @@ protected:
     int LoadMipmap;
     sAdapter *Adapter;
     uint SharedHandle;
+    const void * Data;
 public:
     sResPara Para;
     uint GLName;
     bool ExternalOES;
     bool External;
+
+    void InitGLResource();
 };
 
 /****************************************************************************/
@@ -171,6 +174,7 @@ class sGeometryPrivate
 { 
 protected:
     int Topology;
+    uint Vao;
 };
 
 /****************************************************************************/
