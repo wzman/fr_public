@@ -58,7 +58,7 @@ public:
 
 public:
     DrawerBase(sAdapter * Adapter);
-    ~DrawerBase();
+    virtual ~DrawerBase();
     virtual void Draw(const sTargetPara &tp) = 0;
 };
 

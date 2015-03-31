@@ -15,10 +15,10 @@
 /***                                                                      ***/
 /****************************************************************************/
 
-const sInt ic = 6 * 6;
-const sInt vc = 24;
+const sInt cubeIndicesCount = 6*6;
+const sInt cubeVerticesCount = 24;
 
-static const sVertexPNT cubeVertices[vc] =
+static const sVertexPNT cubeVertices[cubeVerticesCount] =
 {
     { -1, 1, -1, 0, 0, -1, 0, 0, },
     { 1, 1, -1, 0, 0, -1, 1, 0, },
@@ -51,7 +51,7 @@ static const sVertexPNT cubeVertices[vc] =
     { -1, 1, 1, -1, 0, 0, 0, 1, },
 };
 
-static const sU16 cubeIndices[ic] =
+static const sU16 cubeIndices[cubeIndicesCount] =
 {
     0, 1, 2, 0, 2, 3,
     4, 5, 6, 4, 6, 7,
@@ -61,11 +61,15 @@ static const sU16 cubeIndices[ic] =
     20, 21, 22, 20, 22, 23,
 };
 
-static const sVertexPNT triangleVertices[] =
-{      // pos                   // normal               // uv
-    { -0.5f, -0.5f,  0.0f,      0.0f,  0.0f, -1.0f,     0.0f, 0.0f,  },     // left-bottom
-    {  0.5f, -0.5f,  0.0f,      0.0f,  0.0f, -1.0f,     1.0f, 0.0f,  },     // right-bottom
-    {  0.0f,  0.5f,  0.0f,      0.0f,  0.0f, -1.0f,     0.5f, 1.0f,  }      // center-top
+/****************************************************************************/
+
+const sInt triangleVerticesCount = 3;
+
+static const sVertexPNT triangleVertices[triangleVerticesCount] =
+{     // pos                 // normal               // uv
+    { 0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 1.0f,       0.5f, 1.0f, },     // center-top
+    { 1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 1.0f,       1.0f, 0.0f, },     // right-bottom
+    {-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 1.0f,       0.0f, 0.0f, }      // left-top
 };
 
 /****************************************************************************/
@@ -107,7 +111,7 @@ DrawerBase::DrawerBase(sAdapter * Adapter)
     Mtrl = new sMaterial(Adapter);
     Mtrl->SetShaders(CubeShader.Get(0));
     Mtrl->SetTexturePS(0, Tex, sSamplerStatePara(sTF_Linear | sTF_Clamp, 0));
-    Mtrl->SetState(sRenderStatePara(sMTRL_DepthOn | sMTRL_CullOn, sMB_Off));
+    Mtrl->SetState(sRenderStatePara(sMTRL_DepthOn | sMTRL_CullOff , sMB_Off));
     Mtrl->Prepare(Adapter->FormatPNT);
 
     cbv0 = new sCBuffer<CubeShader_cbvs>(Adapter, sST_Vertex, 0);
@@ -141,11 +145,12 @@ void Draw1::Draw(const sTargetPara &tp)
     sF32 time = utime*0.001f;
 
     sVector41 scale(1,1,1);
-    sVector3 rot(0, time, 0);
+    sVector3 rot(0, time*5, 0);
     sVector41 trans(0, 0, 0);
 
     sViewport view;
-    view.Camera.k.w = -2;
+    //view.Camera.k.w = -2;
+    view.Camera = sLookAt(sVector41(0, 0, 0), sVector41(0, 1, -2));
     view.Model = sSetSRT(scale, rot, trans);
     view.ZoomX = 1 / tp.Aspect;
     view.ZoomY = 1;
@@ -167,7 +172,7 @@ void Draw1::Draw(const sTargetPara &tp)
     sVertexFormat * format = Adapter->CreateVertexFormat(vfdesc);
     sDrawPara dp(1, 1, 1, Mtrl, cbv0);
     dp.Flags |= sDF_Arrays;
-    dp.VertexArrayCount = 3;
+    dp.VertexArrayCount = triangleVerticesCount;
     dp.VertexArray = (void*)triangleVertices;
     dp.VertexArrayFormat = format;
 
@@ -184,13 +189,14 @@ Draw2::Draw2(sAdapter * Adapter) :
     DrawerBase(Adapter)
 {
     Geo = new sGeometry(Adapter);
-    Geo->SetIndex(sResBufferPara(sRBM_Index | sRU_Static, sizeof(sU16), ic), cubeIndices);
-    Geo->SetVertex(sResBufferPara(sRBM_Vertex | sRU_Static, sizeof(sVertexPNT), vc), cubeVertices);
-    Geo->Prepare(Adapter->FormatPNT, sGMP_Tris | sGMF_Index16, ic, 0, vc, 0);
+    Geo->SetIndex(sResBufferPara(sRBM_Index | sRU_Static, sizeof(sU16), cubeIndicesCount), cubeIndices);
+    Geo->SetVertex(sResBufferPara(sRBM_Vertex | sRU_Static, sizeof(sVertexPNT), cubeVerticesCount), cubeVertices);
+    Geo->Prepare(Adapter->FormatPNT, sGMP_Tris | sGMF_Index16, cubeIndicesCount, 0, cubeVerticesCount, 0);
 }
 
 Draw2::~Draw2()
 {
+    delete Geo;
 }
 
 void Draw2::Draw(const sTargetPara &tp)
