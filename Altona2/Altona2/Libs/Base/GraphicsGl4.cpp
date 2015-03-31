@@ -2559,7 +2559,7 @@ void sContext::Draw(const sDrawPara &dp)
         GLERR();
 
         glBindBuffer(GL_ARRAY_BUFFER, Adapter->ImmediateContext->DummyVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*8*vc, vp, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, fmt->GetStreamSize(0)*vc, vp, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         //glBindVertexArray(0);
     }
@@ -2606,7 +2606,7 @@ void sContext::Draw(const sDrawPara &dp)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, Adapter->ImmediateContext->DummyVbo);
                 glEnableVertexAttribArray(i);
-                glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                glVertexAttribPointer(i, at->Size, at->Type, at->Normalized, at->Pitch, (void*)(at->Offset + dp.VertexOffset[at->Stream]));
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
 
