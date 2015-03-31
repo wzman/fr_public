@@ -2555,8 +2555,13 @@ void sContext::Draw(const sDrawPara &dp)
     }
     else
     {
-        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glBindVertexArray(Adapter->ImmediateContext->DummyVao);
         GLERR();
+
+        glBindBuffer(GL_ARRAY_BUFFER, Adapter->ImmediateContext->DummyVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*8*vc, vp, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //glBindVertexArray(0);
     }
 
     for(int i=0;i<sGfxMaxVSAttrib;i++)
@@ -2592,10 +2597,17 @@ void sContext::Draw(const sDrawPara &dp)
                 GLERR();
                 glVertexAttribBinding(i, 0);
                 GLERR();
-                glBindVertexBuffer(i, geo->Vertex[at->Stream]->GLName, at->Offset, at->Pitch);
+                if (geo) glBindVertexBuffer(i, geo->Vertex[at->Stream]->GLName, at->Offset, at->Pitch);
                 GLERR();
                 glVertexAttribBinding(i, i);
                 GLERR();
+            }
+            else
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, Adapter->ImmediateContext->DummyVbo);
+                glEnableVertexAttribArray(i);
+                glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
 
 #if !sGLES
@@ -2726,8 +2738,7 @@ void sContext::Draw(const sDrawPara &dp)
     }
     // 
 
-    if(geo)
-        glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 /****************************************************************************/
@@ -2740,6 +2751,9 @@ sContextPrivate::sContextPrivate()
 {
     BlitMtrl = 0;
     BlitCB = 0;
+
+    glGenVertexArrays(1, &DummyVao);
+    glGenBuffers(1, &DummyVbo);
 }
 
 sContextPrivate::~sContextPrivate()

@@ -204,6 +204,8 @@ protected:
     ~sContextPrivate();
 public:
     sAdapter *Adapter;
+    uint DummyVao;
+    uint DummyVbo;
 };
 
 /****************************************************************************/
