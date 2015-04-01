@@ -272,8 +272,25 @@ void App::OnPaint()
     if (Drawer[DrawMode])
             Drawer[DrawMode]->Draw(tp);
 
+    static const sChar *DrawModesName[] =
+    {
+      "F1 - No sGeometry; sDF_Arrays; only vertices buffer",
+      "F2 - sGeometry; vertices + indices buffers",
+      "F3 - ???",
+      "F4 - ???",
+      "F5 - ???",
+      "F6 - ???",
+      "F7 - ???",
+      "F8 - ???",
+      "F9 - ???",
+      "F10 - ???",
+      "F11 - ???",
+      "F12 - ???",
+    };
+
     DPaint->PrintFPS();
     DPaint->PrintStats();
+    DPaint->FramePrintF("F1..F12 : Mode [%s]\n",DrawModesName[DrawMode]);
     DPaint->Draw(tp);
 
     Context->EndTarget();
