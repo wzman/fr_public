@@ -52,6 +52,7 @@ add_subdirectory (Altona2/Examples/graphics/DynamicVertexUpdate)
 add_subdirectory (Altona2/Examples/graphics/instances)
 add_subdirectory (Altona2/Examples/graphics/DynamicTextureMap)
 add_subdirectory (Altona2/Examples/graphics/DynamicTextureUpdate)
+add_subdirectory (Altona2/Examples/graphics/DrawModes)
 
 
 
