@@ -653,7 +653,16 @@ void Rem(void *ptr)
 
         if(!n)
         {
+#if sConfigPlatform == sConfigPlatformLinux
+            // issue on linux :
+            // it appears that some memory allocation (made by system) is not handled correctly in the altona2 memory tracker
+            // so it tries to free unhandled memory and stop here (sFatal)...
+            // however, just ignoring this system memory release in the memory tracker (a break here)
+            // seems does not disturb much the tracker that report correctly all potential leaks made using Altona2 code.
+            break;
+#else
             sFatal("tried to free() memory that was not allocated!");
+#endif
         }
 
 

@@ -151,7 +151,7 @@ namespace Altona2 {
 #define sConfigAssert         1
 #endif
 
-#if defined(sDEFINE_FINAL) || sConfigPlatform==sConfigPlatformIOS || sConfigPlatform==sConfigPlatformLinux
+#if defined(sDEFINE_FINAL) || sConfigPlatform==sConfigPlatformIOS
 #define sConfigDebugMem       0
 #else
 #define sConfigDebugMem       1
