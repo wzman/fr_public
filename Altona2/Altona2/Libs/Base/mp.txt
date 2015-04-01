@@ -16,14 +16,14 @@ library "Base"
     file "String.?pp";
     file "System.?pp";
     file "SystemPrivate.hpp";
-    file "Types.?pp" options "!*Win32" { exclude; };
-    file "Types2.?pp" options "!*Win32" { exclude; };
     file "Wintab.cpp" options "!*Win32" { exclude; };
     file "Wintab.h" options "!*Win32" { exclude; };
 //  file "Obsolete.hpp";
-    file "Types.cpp" options "!*Linux" { exclude; };
-    file "Types2.hpp" options "!*Linux" { exclude; };
-  
+    file "Types.cpp";
+    file "Types.hpp" options "*Linux" { exclude; };
+    file "Types2.hpp";
+    file "Types2.cpp" options "*Linux" { exclude; }; 
+ 
     folder "System"
     {
         file "SystemIos.mm" options "!*Ios" { exclude; };
