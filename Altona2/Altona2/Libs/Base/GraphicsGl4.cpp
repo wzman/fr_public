@@ -2384,6 +2384,28 @@ void sMaterial::ClearTextureSamplerUav()
 #if NEW_GL4_DRAW
 void sContext::Draw(const sDrawPara &dp)
 {
+    sUpdateGfxStats(dp);
+
+    /* Vertex Rendering techniques :
+
+    # name convention :
+    gl*Draw*Arrays*     // vertex only
+    gl*Draw*Elements*   // vertex + index
+
+    # Basic Drawing :
+    glDrawArrays
+    glDrawElements
+
+    # Multi-Draw
+    glMultiDrawArrays
+    glMultiDrawElements
+
+    # Instancing
+    glDrawArraysInstanced
+    glDrawElementsInstanced
+
+    # Indirects
+    */
 }
 #else
 void sContext::Draw(const sDrawPara &dp)
