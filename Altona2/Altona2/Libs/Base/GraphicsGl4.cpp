@@ -2379,7 +2379,13 @@ void sMaterial::ClearTextureSamplerUav()
 /***                                                                      ***/
 /****************************************************************************/
 
+#define NEW_GL4_DRAW 1
 
+#if NEW_GL4_DRAW
+void sContext::Draw(const sDrawPara &dp)
+{
+}
+#else
 void sContext::Draw(const sDrawPara &dp)
 {
     sUpdateGfxStats(dp);
@@ -2740,6 +2746,7 @@ void sContext::Draw(const sDrawPara &dp)
 
     glBindVertexArray(0);
 }
+#endif // NEW_GL4_DRAW
 
 /****************************************************************************/
 /***                                                                      ***/
