@@ -116,7 +116,11 @@ namespace Private
         None
     };
 
-    Atom wmDeleteMessage;   // use to intercept WM_DELETE_WINDOW when using close button window
+    // Atom
+
+    Atom AtomDeleteMessage;     // used to intercept WM_DELETE_WINDOW when using close button window
+    Atom AtomName;              // used for set window title
+    Atom AtomUtfType;           // used for set window title
 }
 
 #endif
@@ -575,9 +579,11 @@ void sScreen::WindowControl(WindowControlEnum mode)
     }
 #endif
 }
-  
+
 void sScreen::SetTitle(const char *title)
 {
+    ScreenMode.WindowTitle = title;
+    XChangeProperty(dpy,win,AtomName,AtomUtfType,8,PropModeReplace,(unsigned char*)title,sGetStringLen(title));
 }
 
 sResource *sScreen::GetScreenColor()
@@ -795,7 +801,7 @@ void XMainLoop()
                 break;
 
             case ClientMessage:
-                if (xev.xclient.data.l[0] == wmDeleteMessage)
+                if (xev.xclient.data.l[0] == AtomDeleteMessage)
                     ExitFlag = true;
                 break;
 
@@ -1117,14 +1123,19 @@ public:
 			}
 			*sf = 0;
 
-			sDeleteArray(formats);
+            sDeleteArray(formats);
 		}
 
         RestartFlag = 1;
 
 #if sConfigPlatform==sConfigPlatformLinux
-        wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-        XSetWMProtocols(dpy, win, &wmDeleteMessage, 1);
+
+        AtomDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+        XSetWMProtocols(dpy, win, &AtomDeleteMessage, 1);
+
+        AtomName= XInternAtom(dpy,"_NET_WM_NAME",false);
+        AtomUtfType= XInternAtom(dpy,"UTF8_STRING",false);
+
 #endif
 
     }
