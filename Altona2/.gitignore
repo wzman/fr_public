@@ -2,6 +2,7 @@
 debug*/
 release*/
 stripped*/
+optim*/
 Release/
 Debug/
 ipch/
